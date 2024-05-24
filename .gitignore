@@ -1,0 +1,19 @@
+# Ignore Terraform directories
+.terraform/
+
+# Ignore Terragrunt cache directories
+.terragrunt-cache/
+
+# Ignore Terraform lock files
+.terraform.lock.hcl
+
+# Ignore other common lock files
+*.lock
+
+# You can add other patterns to ignore additional files or directories
+# For example, ignore all log files
+*.log
+
+# Ignore OS-specific files (optional)
+.DS_Store
+Thumbs.db
