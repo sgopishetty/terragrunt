@@ -24,4 +24,5 @@ inputs = {
   user_data                   = local.base64_user_data
   service_role                = "arn:aws:iam::590184036010:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
   protect_from_scale_in = true
+  key_name              = "test"
 }
