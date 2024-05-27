@@ -9,53 +9,33 @@ terraform {
 inputs = {
   name        = "fastapi"
   cluster_arn = dependency.cluster.outputs.cluster_arn
-
-  # Task Definition
-  requires_compatibilities = ["EC2"]
-  capacity_provider_strategy = {
-    # On-demand instances
-    ex_1 = {
-      capacity_provider = dependency.asg.outputs.autoscaling_group_arn
-      weight            = 1
-      base              = 1
-    }
-  }
-
-
-  # Container definition(s)
-  container_definitions = {
-    fastapi = {
-      image = "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
-      port_mappings = [
-        {
-          name          = "fastapi"
-          containerPort = 80
-          protocol      = "tcp"
-        }
-      ]
-
-      #entry_point = ["fastapi", "run", "/code/app/main.py", "--port", "8000"]
-
-      # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
-
-      enable_cloudwatch_logging              = true
-      create_cloudwatch_log_group            = true
-      cloudwatch_log_group_name              = "/aws/ecs/fastapi/fastapi"
-      cloudwatch_log_group_retention_in_days = 7
-
-      log_configuration = {
-        logDriver = "awslogs"
-      }
-    }
-  }
-  cpu = 512
+  create_task_definition = false
+  create_security_group = true
+  task_definition_arn = dependency.task.outputs.arn
+  enable_autoscaling = false
+  launch_type = "EC2"
+  cpu = 256
   memory = 200
   subnet_ids = ["subnet-062c00f91809492f9", "subnet-00df360198eb45c76"]
-  security_group_ids = ["sg-0f26b1f964899aa0d"]
-  create_task_exec_iam_role = false
-  create_tasks_iam_role     = false
-  task_exec_iam_role_arn    = "arn:aws:iam::590184036010:role/ECS_Task_Role"
+  deployment_maximum_percent = 200
+  load_balancer = {
+    service = {
+      target_group_arn = dependency.alb.outputs.target_groups["ex_ecs"].arn
+      container_name   = "fastapi-test"
+      container_port   = 80
+    }
+  }
+  security_group_rules = {
+    alb_http_ingress = {
+      type                     = "ingress"
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = dependency.alb.outputs.security_group_id
+    }
+  }
+  
 }
 
 
@@ -70,5 +50,24 @@ dependency "asg" {
   config_path = "../ecs_asg"
   mock_outputs = {
     autoscaling_group_arn = "temporary-dummy-id"
+  }
+}
+
+dependency "task" {
+  config_path = "../task"
+  mock_outputs = {
+    arn = "temporary-dummy-id"
+  }
+}
+
+dependency "alb" {
+  config_path = "../alb"
+  mock_outputs = {
+    target_groups = {
+      ex_ecs = {
+        arn = "arn:aws:elasticloadbalancing:us-east-1:590184036010:targetgroup/tf-20240527023830081200000002/1749562d2510f6a1"
+      }
+    }
+    security_group_id = "sg-037e53624f1a4bff3"
   }
 }
