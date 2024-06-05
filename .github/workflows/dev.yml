@@ -6,6 +6,8 @@ env:
   tf_version: '1.8.4'
   tg_version: '0.58.14'
   working_dir: 'dev'
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 jobs:
   plan:
@@ -15,15 +17,19 @@ jobs:
         uses: actions/checkout@main
       
       - uses: tanmancan/action-setup-ssh-agent-key@1.0.0
+        id: setup_ssh
         with:
           ssh-auth-sock: /tmp/my_auth.sock
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           ssh-public-key: ${{ secrets.SSH_PUBLIC_KEY }}
+        continue-on-error: false
       
       - name: SSH Command Example
+        if: steps.setup_ssh.outcome == 'success'
         run: ssh -T git@github.com || true
 
       - name: Check terragrunt HCL
+        if: steps.setup_ssh.outcome == 'success'
         uses: gruntwork-io/terragrunt-action@v2
         with:
           tf_version: ${{ env.tf_version }}
