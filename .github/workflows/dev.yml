@@ -31,7 +31,6 @@ jobs:
       - name: Check terragrunt HCL
         if: steps.setup_ssh.outcome == 'success'
         uses: gruntwork-io/terragrunt-action@v2
-        if: steps.ssh.outcome == 'success'
         with:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
