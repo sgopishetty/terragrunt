@@ -15,19 +15,21 @@ jobs:
         uses: actions/checkout@main
       
       - name: Setup SSH
-        id: ssh
+        id: setup_ssh
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        continue-on-error: false
       
       - name: Add GitHub to known hosts
         run: |
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Check terragrunt HCL
+        if: steps.setup_ssh.outcome == 'success'
         uses: gruntwork-io/terragrunt-action@v2
         if: steps.ssh.outcome == 'success'
         with:
