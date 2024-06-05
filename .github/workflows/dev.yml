@@ -16,12 +16,11 @@ jobs:
       
       - name: Setup SSH
         id: setup_ssh
+        uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
+        with:
+          SSHKEY: ${{ secrets.SSH }}
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh -T git@github.com || true
         continue-on-error: false
       
       - name: Add GitHub to known hosts
