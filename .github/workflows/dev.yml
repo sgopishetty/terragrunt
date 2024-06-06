@@ -35,5 +35,5 @@ jobs:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
           tg_dir: ${{ env.working_dir }}
-        run: |
-          ls -al ~/.ssh/
+        env:
+          SSH_AUTH_SOCK: "/tmp/my_auth.sock"
