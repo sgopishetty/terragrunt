@@ -34,29 +34,35 @@ inputs = {
       description              = "Service port"
       source_security_group_id = dependency.alb.outputs.security_group_id
     }
+    outbound_egress = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"  # "-1" means all protocols
+      cidr_blocks = ["0.0.0.0/0"]  # Allow all IP addresses
+    }
   }
-  
 }
 
 
 dependency "cluster" {
   config_path = "../ecs_cluster"
   mock_outputs = {
-    cluster_arn = "temporary-dummy-id"
+    cluster_arn = "arn:aws:ecs:us-west-2:123456789012:cluster/my-ecs-cluster"
   }
 }
 
 dependency "asg" {
   config_path = "../ecs_asg"
   mock_outputs = {
-    autoscaling_group_arn = "temporary-dummy-id"
+    autoscaling_group_arn = "arn:aws:autoscaling:us-west-2:123456789012:autoScalingGroup:abc12345-6789-abcd-1234-56789abcdef:autoScalingGroupName/my-auto-scaling-group"
   }
 }
 
 dependency "task" {
   config_path = "../task"
   mock_outputs = {
-    arn = "temporary-dummy-id"
+    arn = "arn:aws:ecs:us-west-2:123456789012:task-definition/my-task:1"
   }
 }
 
