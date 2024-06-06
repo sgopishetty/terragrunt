@@ -35,6 +35,6 @@ inputs = {
 dependency "asg" {
   config_path = "../ecs_asg"
   mock_outputs = {
-    autoscaling_group_arn = "temporary-dummy-id"
+    autoscaling_group_arn = "arn:aws:autoscaling:us-west-2:123456789012:autoScalingGroup:abc12345-6789-abcd-1234-56789abcdef:autoScalingGroupName/my-auto-scaling-group"
   }
 }
