@@ -1,6 +1,6 @@
 
 terraform {
-  source = "../../../../../modules/subnets"
+  source = "../../../../modules/subnets"
 }
 
 include "root" {
@@ -9,7 +9,7 @@ include "root" {
 }
 
 include "envcommon" {
-  path   = "${dirname(find_in_parent_folders())}/common/subnet.hcl"
+  path   = "${dirname(find_in_parent_folders())}/_envcommon/subnets/subnet.hcl"
   expose = true
 }
 
