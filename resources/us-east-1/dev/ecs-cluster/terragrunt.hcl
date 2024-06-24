@@ -19,15 +19,15 @@ inputs = {
   cluster_instance_ami = "ami-01622b740380d90fe"
   cluster_instance_type = "t2.nano"
   cluster_instance_keypair_name = "test"
-  vpc_subnet_ids = dependency.subnets.private_subnets
+  vpc_subnet_ids = dependency.subnets.outputs.public_subnets
   allow_ssh_from_cidr_blocks = ["0.0.0.0/0"]
-  
+  capacity_provider_enabled = "true"
 }
 
 dependency "subnets" {
   config_path = "${get_terragrunt_dir()}/../subnets"
 
   mock_outputs = {
-    private_subnets = ["known-after-apply"]
+    public_subnets = ["known-after-apply"]
   }
 }

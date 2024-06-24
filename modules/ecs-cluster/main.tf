@@ -31,8 +31,8 @@ terraform {
 resource "aws_ecs_cluster" "ecs" {
   count = var.create_resources ? 1 : 0
   name  = var.cluster_name
-  #tags  = var.custom_tags_ecs_cluster
-  tags  = local.default_tags
+  tags  = var.custom_tags_ecs_cluster
+  #tags  = local.default_tags
 
   dynamic "setting" {
     # The content of the for_each attribute does not matter, as it is only used to indicate if this block should be
@@ -54,8 +54,8 @@ resource "aws_ecs_cluster" "ecs" {
 resource "aws_autoscaling_group" "ecs" {
   #count = local.auto_scaling_group_count
 
-  name     = local.auto_scaling_group_count == 1 ? var.cluster_name : "${var.cluster_name}-${count.index}"
-  #name      = var.cluster_name
+  #name     = local.auto_scaling_group_count == 1 ? var.cluster_name : "${var.cluster_name}-${count.index}"
+  name      = var.cluster_name
   min_size = var.cluster_min_size
   max_size = var.cluster_max_size
 
@@ -179,7 +179,7 @@ resource "aws_ecs_capacity_provider" "capacity_provider" {
   )
 
   auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.ecs[count.index].arn
+    auto_scaling_group_arn         = aws_autoscaling_group.ecs.arn
     managed_termination_protection = var.autoscaling_termination_protection ? "ENABLED" : "DISABLED"
 
     managed_scaling {
@@ -193,27 +193,27 @@ resource "aws_ecs_capacity_provider" "capacity_provider" {
 
 # # When enabled, create this resource only once to capture capacity providers and associate this resource with the ECS
 # # cluster.
-# resource "aws_ecs_cluster_capacity_providers" "this" {
-#   count = (
-#     var.create_resources && local.capacity_provider_count > 0
-#     ? 1
-#     : 0
-#   )
+resource "aws_ecs_cluster_capacity_providers" "this" {
+  count = (
+    var.create_resources && local.capacity_provider_count > 0
+    ? 1
+    : 0
+  )
 
-#   cluster_name = aws_ecs_cluster.ecs[0].name
+  cluster_name = aws_ecs_cluster.ecs[0].name
 
-#   capacity_providers = aws_ecs_capacity_provider.capacity_provider[*].name
+  capacity_providers = aws_ecs_capacity_provider.capacity_provider[*].name
 
-#   dynamic "default_capacity_provider_strategy" {
-#     for_each = aws_ecs_capacity_provider.capacity_provider
-#     iterator = capacity_provider
+  dynamic "default_capacity_provider_strategy" {
+    for_each = aws_ecs_capacity_provider.capacity_provider
+    iterator = capacity_provider
 
-#     content {
-#       capacity_provider = capacity_provider.value.name
-#       weight            = 1
-#     }
-#   }
-# }
+    content {
+      capacity_provider = capacity_provider.value.name
+      weight            = 1
+    }
+  }
+}
 
 # # Base64 encode user data input, compute the list of default tags to apply to the cluster, as well as the number of capacity providers and auto-scaling
 # # groups based on the configuration (either no capacity provider, one capacity provider, or one capacity provider with
