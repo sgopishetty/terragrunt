@@ -12,9 +12,31 @@ locals {
   aws_region      = local.region_vars.locals.aws_region
 
   tags            = local.common_vars.locals.tags
-   
+  
+  remote_state_prefix = local.common_vars.locals.remote_state_prefix
   # Merge the default tags with the override tags
   #tags = merge(local.default_tags, local.override_tags)
+
+  bucket_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid = "AllowSSLRequestsOnly",
+        Effect = "Deny",
+        Principal = "*",
+        Action = "s3:*",
+        Resource = [
+          "arn:aws:s3:::${local.remote_state_prefix}-tf-state",
+          "arn:aws:s3:::${local.remote_state_prefix}-tf-state/*"
+        ],
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
 
 }
 
@@ -37,9 +59,12 @@ remote_state {
   backend = "s3"
   config  = {
     encrypt        = true
-    bucket         = "terragrunt-st"
+    bucket         = lower("${local.remote_state_prefix}-tf-state")
     key            = "new/${path_relative_to_include()}/terraform.tfstate"
     region         = "us-east-1"
+    skip_bucket_enforced_tls       = true
+    #policy = "${local.bucket_policy}"
+    s3_bucket_tags = "${local.tags}"
   }
   generate = {
     path      = "backend.tf"
