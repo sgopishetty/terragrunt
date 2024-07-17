@@ -22,15 +22,6 @@ locals {
 
 inputs = {
   cluster_name = local.cluster
-  custom_iam_role_name = format(local.resource_naming_convention, "chapi-ecs-role")
-  cluster_instance_user_data = <<-EOF
-              #!/bin/bash
-              cat <<EOL >> /etc/ecs/ecs.config
-                ECS_CLUSTER=${local.cluster}
-                ECS_LOGLEVEL=debug
-                ECS_ENABLE_TASK_IAM_ROLE=true
-              EOL     
-            EOF
-  custom_tags_ecs_cluster = "${local.tags}"
+  
 }
 

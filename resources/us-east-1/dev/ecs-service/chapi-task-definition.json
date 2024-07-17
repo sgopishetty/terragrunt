@@ -1,0 +1,26 @@
+[
+  {
+    "name": "dev-chapi-ecs-service",
+    "image": "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/epia/dev-chapi-ecs-service",
+        "awslogs-region": "us-east-1",
+        "awslogs-create-group": "true",
+        "awslogs-stream-prefix": "dev-chapi-ecs-service"
+      }
+    },
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80,
+        "protocol": "tcp"
+      }
+    ],
+    "enable_cloudwatch_logging": "true",
+    "create_cloudwatch_log_group": "true",
+    "cloudwatch_log_group_name": "/aws/ecs/dev-chapi-ecs-service",
+    "cloudwatch_log_group_retention_in_days": "7"
+  }
+]

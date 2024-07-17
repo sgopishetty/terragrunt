@@ -18,10 +18,10 @@ variable "ecs_cluster_arn" {
   type        = string
 }
 
- variable "ecs_task_container_definitions" {
-   description = "The JSON text of the ECS Task Container Definitions. This portion of the ECS Task Definition defines the Docker container(s) to be run along with all their properties. It should adhere to the format described at https://goo.gl/ob5U3g."
-   type        = string
- }
+ #variable "ecs_task_container_definitions" {
+ #  description = "The JSON text of the ECS Task Container Definitions. This portion of the ECS Task Definition defines the Docker container(s) to be run along with all their properties. It should adhere to the format described at https://goo.gl/ob5U3g."
+ #  type        = string
+ #}
 
 variable "desired_number_of_tasks" {
   description = "How many copies of the Task to run across the cluster."
@@ -687,6 +687,6 @@ variable "skip_load_balancer_check_arg" {
   default     = false
 }
 
-#variable "container_definitions_path" {
-#  type = string
-#}
+variable "container_definitions_path" {
+  type = string
+}

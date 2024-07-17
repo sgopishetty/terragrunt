@@ -32,7 +32,6 @@ resource "aws_ecs_cluster" "ecs" {
   count = var.create_resources ? 1 : 0
   name  = var.cluster_name
   tags  = var.custom_tags_ecs_cluster
-  #tags  = local.default_tags
 
   dynamic "setting" {
     # The content of the for_each attribute does not matter, as it is only used to indicate if this block should be
@@ -51,50 +50,47 @@ resource "aws_ecs_cluster" "ecs" {
 # instances will automatically be replaced, and we can easily scale the cluster's resources.
 # ---------------------------------------------------------------------------------------------------------------------
 
-resource "aws_autoscaling_group" "ecs" {
-  #count = local.auto_scaling_group_count
+# resource "aws_autoscaling_group" "ecs" {
+#   count = local.auto_scaling_group_count
 
-  #name     = local.auto_scaling_group_count == 1 ? var.cluster_name : "${var.cluster_name}-${count.index}"
-  name      = var.cluster_name
-  min_size = var.cluster_min_size
-  max_size = var.cluster_max_size
+#   name     = local.auto_scaling_group_count == 1 ? var.cluster_name : "${var.cluster_name}-${count.index}"
+#   min_size = var.cluster_min_size
+#   max_size = var.cluster_max_size
 
-  launch_template {
-    id      = aws_launch_template.ecs[0].id
-    version = aws_launch_template.ecs[0].latest_version
-  }
+#   launch_template {
+#     id      = aws_launch_template.ecs[0].id
+#     version = aws_launch_template.ecs[0].latest_version
+#   }
 
-  #vpc_zone_identifier   = local.auto_scaling_group_count == 1 ? var.vpc_subnet_ids : [var.vpc_subnet_ids[count.index]]
-  vpc_zone_identifier   = var.vpc_subnet_ids
-  termination_policies  = var.termination_policies
-  protect_from_scale_in = var.autoscaling_termination_protection
-  enabled_metrics       = var.cluster_asg_metrics_enabled
-  max_instance_lifetime = var.max_instance_lifetime
-  
+#   vpc_zone_identifier   = local.auto_scaling_group_count == 1 ? var.vpc_subnet_ids : [var.vpc_subnet_ids[count.index]]
+#   termination_policies  = var.termination_policies
+#   protect_from_scale_in = var.autoscaling_termination_protection
+#   enabled_metrics       = var.cluster_asg_metrics_enabled
+#   max_instance_lifetime = var.max_instance_lifetime
 
-  dynamic "tag" {
-    for_each = concat(local.default_tags, var.custom_tags_ec2_instances)
-    content {
-      key                 = tag.value.key
-      value               = tag.value.value
-      propagate_at_launch = tag.value.propagate_at_launch
-    }
-  }
-}
+#   dynamic "tag" {
+#     for_each = concat(local.default_tags, var.custom_tags_ec2_instances)
+#     content {
+#       key                 = tag.value.key
+#       value               = tag.value.value
+#       propagate_at_launch = tag.value.propagate_at_launch
+#     }
+#   }
+# }
 
-resource "aws_launch_template" "ecs" {
-  count = var.create_resources ? 1 : 0
+# resource "aws_launch_template" "ecs" {
+#   count = var.create_resources ? 1 : 0
 
-  name_prefix   = "${var.cluster_name}-"
-  image_id      = var.cluster_instance_ami
-  instance_type = var.cluster_instance_type
-  key_name      = var.cluster_instance_keypair_name
-  user_data     = local.user_data
-  ebs_optimized = var.cluster_instance_ebs_optimized
+#   name_prefix   = "${var.cluster_name}-"
+#   image_id      = var.cluster_instance_ami
+#   instance_type = var.cluster_instance_type
+#   key_name      = var.cluster_instance_keypair_name
+#   user_data     = local.user_data
+#   ebs_optimized = var.cluster_instance_ebs_optimized
 
-  iam_instance_profile {
-    name = aws_iam_instance_profile.ecs[0].name
-  }
+#   iam_instance_profile {
+#     name = aws_iam_instance_profile.ecs[0].name
+#   }
 
 #   placement {
 #     tenancy                 = var.tenancy
@@ -124,26 +120,26 @@ resource "aws_launch_template" "ecs" {
 #     security_groups             = [aws_security_group.ecs[0].id]
 #   }
 
-  monitoring {
-    enabled = var.cluster_detailed_monitoring
-  }
+#   monitoring {
+#     enabled = var.cluster_detailed_monitoring
+#   }
 
-  dynamic "block_device_mappings" {
-    for_each = var.enable_block_device_mappings ? [1] : []
-    content {
-      device_name = var.cluster_instance_block_device_name
-      ebs {
-        volume_size           = var.cluster_instance_root_volume_size
-        volume_type           = var.cluster_instance_root_volume_type
-        #encrypted             = var.cluster_instance_root_volume_encrypted
-        delete_on_termination = var.cluster_instance_ebs_delete_on_termination
-        #iops                  = var.cluster_instance_ebs_iops
-        #kms_key_id            = var.cluster_instance_ebs_kms_key_id
-        #snapshot_id           = var.cluster_instance_ebs_snapshot_id
-        #throughput            = var.cluster_instance_ebs_throughput
-      }
-    }
-  }
+#   dynamic "block_device_mappings" {
+#     for_each = var.enable_block_device_mappings ? [1] : []
+#     content {
+#       device_name = var.cluster_instance_block_device_name
+#       ebs {
+#         volume_size           = var.cluster_instance_root_volume_size
+#         volume_type           = var.cluster_instance_root_volume_type
+#         encrypted             = var.cluster_instance_root_volume_encrypted
+#         delete_on_termination = var.cluster_instance_ebs_delete_on_termination
+#         iops                  = var.cluster_instance_ebs_iops
+#         kms_key_id            = var.cluster_instance_ebs_kms_key_id
+#         snapshot_id           = var.cluster_instance_ebs_snapshot_id
+#         throughput            = var.cluster_instance_ebs_throughput
+#       }
+#     }
+#   }
 
 #   # metadata_options allow you to configure the behavior of the Instance Metadata Service (IMDS).
 #   # See: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html for more information
@@ -166,113 +162,113 @@ resource "aws_launch_template" "ecs" {
 #     http_tokens                 = (var.enable_imds && var.use_imdsv1 ? "optional" : "required")
 #     http_put_response_hop_limit = var.http_put_response_hop_limit
 #   }
- }
+# }
 
 # # Capacity providers for the cluster to enable autoscaling.
-resource "aws_ecs_capacity_provider" "capacity_provider" {
-  count = local.capacity_provider_count
+# resource "aws_ecs_capacity_provider" "capacity_provider" {
+#   count = local.capacity_provider_count
 
-  name = (
-    local.capacity_provider_count == 1
-    ? "capacity-${var.cluster_name}"
-    : "capacity-${var.cluster_name}-${count.index}"
-  )
+#   name = (
+#     local.capacity_provider_count == 1
+#     ? "capacity-${var.cluster_name}"
+#     : "capacity-${var.cluster_name}-${count.index}"
+#   )
 
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.ecs.arn
-    managed_termination_protection = var.autoscaling_termination_protection ? "ENABLED" : "DISABLED"
+#   auto_scaling_group_provider {
+#     auto_scaling_group_arn         = aws_autoscaling_group.ecs[count.index].arn
+#     managed_termination_protection = var.autoscaling_termination_protection ? "ENABLED" : "DISABLED"
 
-    managed_scaling {
-      maximum_scaling_step_size = var.capacity_provider_max_scale_step
-      minimum_scaling_step_size = var.capacity_provider_min_scale_step
-      status                    = "ENABLED"
-      target_capacity           = var.capacity_provider_target
-    }
-  }
-}
+#     managed_scaling {
+#       maximum_scaling_step_size = var.capacity_provider_max_scale_step
+#       minimum_scaling_step_size = var.capacity_provider_min_scale_step
+#       status                    = "ENABLED"
+#       target_capacity           = var.capacity_provider_target
+#     }
+#   }
+# }
 
 # # When enabled, create this resource only once to capture capacity providers and associate this resource with the ECS
 # # cluster.
-resource "aws_ecs_cluster_capacity_providers" "this" {
-  count = (
-    var.create_resources && local.capacity_provider_count > 0
-    ? 1
-    : 0
-  )
+# resource "aws_ecs_cluster_capacity_providers" "this" {
+#   count = (
+#     var.create_resources && local.capacity_provider_count > 0
+#     ? 1
+#     : 0
+#   )
 
-  cluster_name = aws_ecs_cluster.ecs[0].name
+#   cluster_name = aws_ecs_cluster.ecs[0].name
 
-  capacity_providers = aws_ecs_capacity_provider.capacity_provider[*].name
+#   capacity_providers = aws_ecs_capacity_provider.capacity_provider[*].name
 
-  dynamic "default_capacity_provider_strategy" {
-    for_each = aws_ecs_capacity_provider.capacity_provider
-    iterator = capacity_provider
+#   dynamic "default_capacity_provider_strategy" {
+#     for_each = aws_ecs_capacity_provider.capacity_provider
+#     iterator = capacity_provider
 
-    content {
-      capacity_provider = capacity_provider.value.name
-      weight            = 1
-    }
-  }
-}
+#     content {
+#       capacity_provider = capacity_provider.value.name
+#       weight            = 1
+#     }
+#   }
+# }
 
 # # Base64 encode user data input, compute the list of default tags to apply to the cluster, as well as the number of capacity providers and auto-scaling
 # # groups based on the configuration (either no capacity provider, one capacity provider, or one capacity provider with
 # # one auto-scaling group per subnet/availability group https://docs.aws.amazon.com/AmazonECS/latest/developerguide/asg-capacity-providers.html)
- locals {
+# locals {
 
-  # Launch templates do not support non-base64 user data input - for backwards compatability keep the existing vars, but 
-  # encode the non-base64 input if the base64 input is not provided. If both var inputs are null, set user_data input to null
-  user_data = (
-    var.cluster_instance_user_data_base64 == null
-    ? (
-      var.cluster_instance_user_data == null
-      ? null
-      : base64encode(var.cluster_instance_user_data)
-    )
-    : var.cluster_instance_user_data_base64
-  )
+#   # Launch templates do not support non-base64 user data input - for backwards compatability keep the existing vars, but 
+#   # encode the non-base64 input if the base64 input is not provided. If both var inputs are null, set user_data input to null
+#   user_data = (
+#     var.cluster_instance_user_data_base64 == null
+#     ? (
+#       var.cluster_instance_user_data == null
+#       ? null
+#       : base64encode(var.cluster_instance_user_data)
+#     )
+#     : var.cluster_instance_user_data_base64
+#   )
 
-  capacity_provider_count = (
-    var.create_resources && var.capacity_provider_enabled
-    ? (
-      var.multi_az_capacity_provider
-      ? length(var.vpc_subnet_ids)
-      : 1
-    )
-    : 0
-  )
-  auto_scaling_group_count = (
-    var.create_resources
-    ? (
-      var.capacity_provider_enabled && var.multi_az_capacity_provider
-      ? length(var.vpc_subnet_ids)
-      : 1
-    )
-    : 0
-  )
+#   capacity_provider_count = (
+#     var.create_resources && var.capacity_provider_enabled
+#     ? (
+#       var.multi_az_capacity_provider
+#       ? length(var.vpc_subnet_ids)
+#       : 1
+#     )
+#     : 0
+#   )
+#   auto_scaling_group_count = (
+#     var.create_resources
+#     ? (
+#       var.capacity_provider_enabled && var.multi_az_capacity_provider
+#       ? length(var.vpc_subnet_ids)
+#       : 1
+#     )
+#     : 0
+#   )
 
-  default_tags = concat([
-    {
-      key                 = "Name"
-      value               = var.cluster_name
-      propagate_at_launch = true
-    },
-    ],
+#   default_tags = concat([
+#     {
+#       key                 = "Name"
+#       value               = var.cluster_name
+#       propagate_at_launch = true
+#     },
+#     ],
 
-    # When using capacity providers, ECS automatically adds the AmazonECSManaged tag to the ASG. Without this tag,
-    # capacity providers don't work correctly. Therefore, we add this tag here to make sure it doesn't accidentally get
-    # removed on follow-up calls to 'apply'.
-    local.capacity_provider_count > 0
-    ? [
-      {
-        key                 = "AmazonECSManaged"
-        value               = ""
-        propagate_at_launch = true
-      }
-    ]
-    : []
-  )
-}
+#     # When using capacity providers, ECS automatically adds the AmazonECSManaged tag to the ASG. Without this tag,
+#     # capacity providers don't work correctly. Therefore, we add this tag here to make sure it doesn't accidentally get
+#     # removed on follow-up calls to 'apply'.
+#     local.capacity_provider_count > 0
+#     ? [
+#       {
+#         key                 = "AmazonECSManaged"
+#         value               = ""
+#         propagate_at_launch = true
+#       }
+#     ]
+#     : []
+#   )
+# }
 
 ## ---------------------------------------------------------------------------------------------------------------------
 ## CREATE THE ECS CLUSTER INSTANCE SECURITY GROUP
@@ -283,36 +279,36 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 ## Note that we do not define ingress and egress rules inline. This is because consumers of this terraform module might
 ## want to add arbitrary rules to this security group. See:
 ## https://www.terraform.io/docs/providers/aws/r/security_group.html.
-resource "aws_security_group" "ecs" {
- count = var.create_resources ? 1 : 0
-
- name        = var.cluster_name
- description = "For EC2 Instances in the ${var.cluster_name} ECS Cluster."
- vpc_id      = var.vpc_id
- tags        = var.custom_tags_security_group
-}
+#resource "aws_security_group" "ecs" {
+#  count = var.create_resources ? 1 : 0
+#
+#  name        = var.cluster_name
+#  description = "For EC2 Instances in the ${var.cluster_name} ECS Cluster."
+#  vpc_id      = var.vpc_id
+#  tags        = var.custom_tags_security_group
+#}
 #
 ## Allow all outbound traffic from the ECS Cluster
-resource "aws_security_group_rule" "allow_outbound_all" {
- count             = var.create_resources ? 1 : 0
- type              = "egress"
- from_port         = 0
- to_port           = 0
- protocol          = "-1"
- cidr_blocks       = ["0.0.0.0/0"]
- security_group_id = aws_security_group.ecs[0].id
-}
+#resource "aws_security_group_rule" "allow_outbound_all" {
+#  count             = var.create_resources ? 1 : 0
+#  type              = "egress"
+#  from_port         = 0
+#  to_port           = 0
+#  protocol          = "-1"
+#  cidr_blocks       = ["0.0.0.0/0"]
+#  security_group_id = aws_security_group.ecs[0].id
+#}
 #
 ## Allow inbound SSH traffic from the Security Group ID specified in var.allow_ssh_from_security_group_blocks.
-resource "aws_security_group_rule" "allow_inbound_ssh_from_cidr" {
- count             = var.create_resources && length(var.allow_ssh_from_cidr_blocks) > 0 ? 1 : 0
- type              = "ingress"
- from_port         = var.ssh_port
- to_port           = var.ssh_port
- protocol          = "tcp"
- cidr_blocks       = var.allow_ssh_from_cidr_blocks
- security_group_id = aws_security_group.ecs[0].id
-}
+#resource "aws_security_group_rule" "allow_inbound_ssh_from_cidr" {
+#  count             = var.create_resources && length(var.allow_ssh_from_cidr_blocks) > 0 ? 1 : 0
+#  type              = "ingress"
+#  from_port         = var.ssh_port
+#  to_port           = var.ssh_port
+#  protocol          = "tcp"
+#  cidr_blocks       = var.allow_ssh_from_cidr_blocks
+#  security_group_id = aws_security_group.ecs[0].id
+#}
 #
 ## Allow inbound SSH traffic from the Security Group ID specified in var.allow_ssh_from_security_group_ids.
 #resource "aws_security_group_rule" "allow_inbound_ssh_from_security_group" {
@@ -347,98 +343,98 @@ resource "aws_security_group_rule" "allow_inbound_ssh_from_cidr" {
 ## module can add their own custom IAM policies.
 ## ---------------------------------------------------------------------------------------------------------------------
 #
-resource "aws_iam_role" "ecs" {
- count = var.create_resources ? 1 : 0
- name = (
-   var.custom_iam_role_name == null
-   ? "${var.cluster_name}-instance"
-   : var.custom_iam_role_name
- )
- assume_role_policy   = data.aws_iam_policy_document.ecs_role.json
- #permissions_boundary = var.cluster_instance_role_permissions_boundary_arn
-
- # IAM objects take time to propagate. This leads to subtle eventual consistency bugs where the ECS cluster cannot be
- # created because the IAM role does not exist. We add a 15 second wait here to give the IAM role a chance to propagate
- # within AWS.
- provisioner "local-exec" {
-   command = "echo 'Sleeping for 15 seconds to wait for IAM role to be created'; sleep 15"
- }
-}
+#resource "aws_iam_role" "ecs" {
+#  count = var.create_resources ? 1 : 0
+#  name = (
+#    var.custom_iam_role_name == null
+#    ? "${var.cluster_name}-instance"
+#    : var.custom_iam_role_name
+#  )
+#  assume_role_policy   = data.aws_iam_policy_document.ecs_role.json
+#  permissions_boundary = var.cluster_instance_role_permissions_boundary_arn
 #
-data "aws_iam_policy_document" "ecs_role" {
- statement {
-   effect  = "Allow"
-   actions = ["sts:AssumeRole"]
-
-   principals {
-     type        = "Service"
-     identifiers = ["ec2.amazonaws.com"]
-   }
- }
-}
+#  # IAM objects take time to propagate. This leads to subtle eventual consistency bugs where the ECS cluster cannot be
+#  # created because the IAM role does not exist. We add a 15 second wait here to give the IAM role a chance to propagate
+#  # within AWS.
+#  provisioner "local-exec" {
+#    command = "echo 'Sleeping for 15 seconds to wait for IAM role to be created'; sleep 15"
+#  }
+#}
+#
+#data "aws_iam_policy_document" "ecs_role" {
+#  statement {
+#    effect  = "Allow"
+#    actions = ["sts:AssumeRole"]
+#
+#    principals {
+#      type        = "Service"
+#      identifiers = ["ec2.amazonaws.com"]
+#    }
+#  }
+#}
 #
 ## To assign an IAM Role to an EC2 instance, we need to create the intermediate concept of an "IAM Instance Profile".
-resource "aws_iam_instance_profile" "ecs" {
- count = var.create_resources ? 1 : 0
- name = (
-   var.custom_iam_role_name == null
-   ? var.cluster_name
-   : var.custom_iam_role_name
- )
- role = aws_iam_role.ecs[0].name
-}
+#resource "aws_iam_instance_profile" "ecs" {
+#  count = var.create_resources ? 1 : 0
+#  name = (
+#    var.custom_iam_role_name == null
+#    ? var.cluster_name
+#    : var.custom_iam_role_name
+#  )
+#  role = aws_iam_role.ecs[0].name
+#}
 #
 ## IAM policy we add to our EC2 Instance Role that allows an ECS Agent running on the EC2 Instance to communicate with
 ## an ECS cluster.
-resource "aws_iam_role_policy" "ecs" {
- count  = var.create_resources ? 1 : 0
- name   = "${var.cluster_name}-ecs-permissions"
- role   = aws_iam_role.ecs[0].id
- policy = data.aws_iam_policy_document.ecs_permissions.json
-}
+#resource "aws_iam_role_policy" "ecs" {
+#  count  = var.create_resources ? 1 : 0
+#  name   = "${var.cluster_name}-ecs-permissions"
+#  role   = aws_iam_role.ecs[0].id
+#  policy = data.aws_iam_policy_document.ecs_permissions.json
+#}
 #
-data "aws_iam_policy_document" "ecs_permissions" {
- statement {
-   effect = "Allow"
-
-   actions = [
-     "ecs:CreateCluster",
-     "ecs:DeregisterContainerInstance",
-     "ecs:DiscoverPollEndpoint",
-     "ecs:Poll",
-     "ecs:RegisterContainerInstance",
-     "ecs:StartTelemetrySession",
-     "ecs:Submit*",
-     "ecs:UpdateContainerInstancesState",
-   ]
-
-   resources = ["*"]
- }
-}
+#data "aws_iam_policy_document" "ecs_permissions" {
+#  statement {
+#    effect = "Allow"
+#
+#    actions = [
+#      "ecs:CreateCluster",
+#      "ecs:DeregisterContainerInstance",
+#      "ecs:DiscoverPollEndpoint",
+#      "ecs:Poll",
+#      "ecs:RegisterContainerInstance",
+#      "ecs:StartTelemetrySession",
+#      "ecs:Submit*",
+#      "ecs:UpdateContainerInstancesState",
+#    ]
+#
+#    resources = ["*"]
+#  }
+#}
 #
 ## IAM policy we add to our EC2 Instance Role that allows ECS Instances to pull all containers from Amazon EC2 Container
 ## Registry.
-resource "aws_iam_role_policy" "ecr" {
- count  = var.create_resources ? 1 : 0
- name   = "${var.cluster_name}-docker-login-for-ecr"
- role   = aws_iam_role.ecs[0].id
- policy = data.aws_iam_policy_document.ecr_permissions.json
-}
-
-data "aws_iam_policy_document" "ecr_permissions" {
- statement {
-   effect = "Allow"
-
-   actions = [
-     "ecr:BatchCheckLayerAvailability",
-     "ecr:BatchGetImage",
-     "ecr:DescribeRepositories",
-     "ecr:GetAuthorizationToken",
-     "ecr:GetDownloadUrlForLayer",
-     "ecr:GetRepositoryPolicy",
-     "ecr:ListImages",
-   ]
-
-   resources = ["*"]
- }
-}
+#resource "aws_iam_role_policy" "ecr" {
+#  count  = var.create_resources ? 1 : 0
+#  name   = "${var.cluster_name}-docker-login-for-ecr"
+#  role   = aws_iam_role.ecs[0].id
+#  policy = data.aws_iam_policy_document.ecr_permissions.json
+#}
+#
+#data "aws_iam_policy_document" "ecr_permissions" {
+#  statement {
+#    effect = "Allow"
+#
+#    actions = [
+#      "ecr:BatchCheckLayerAvailability",
+#      "ecr:BatchGetImage",
+#      "ecr:DescribeRepositories",
+#      "ecr:GetAuthorizationToken",
+#      "ecr:GetDownloadUrlForLayer",
+#      "ecr:GetRepositoryPolicy",
+#      "ecr:ListImages",
+#    ]
+#
+#    resources = ["*"]
+#  }
+#}

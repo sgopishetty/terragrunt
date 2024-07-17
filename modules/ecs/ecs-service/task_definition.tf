@@ -4,8 +4,8 @@
 
 resource "aws_ecs_task_definition" "task" {
   family                = var.service_name
-  container_definitions = var.ecs_task_container_definitions
-  #container_definitions = file(var.container_definitions_path)
+  #container_definitions = var.ecs_task_container_definitions
+  container_definitions = file(var.container_definitions_path)
   task_role_arn         = local.ecs_task_role_arn
   execution_role_arn    = local.ecs_task_execution_role_arn
   network_mode          = var.ecs_task_definition_network_mode

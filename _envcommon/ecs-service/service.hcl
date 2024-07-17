@@ -22,18 +22,12 @@ locals {
 
 
 inputs = {
-  service_name = local.service
-  service_tags = "${local.tags}"
-  task_definition_tags = "${local.tags}"
-  lb_target_group_tags = "${local.tags}"
-  elb_target_groups = {
-     alb = {
-       name                          = local.service
-       container_name                = local.service
-       container_port                = 80
-       protocol                      = "HTTP"
-       health_check_protocol         = "HTTP"
-       load_balancing_algorithm_type = "round_robin"
-     }
-   }
+  # IAM role
+  ecs_execution_role   = "chapi-ecs-role-${local.aws_region}-${local.env}"
+  ecs_execution_policy = "chapi-ecs-policy-${local.aws_region}-${local.env}"
+  ecs_task_role   = "chapi-ecs-task-role-${local.aws_region}-${local.env}"
+  ecs_task_policy = "chapi-ecs-task-policy-${local.aws_region}-${local.env}"
+  # Fargate service
+  service_name               = "${local.service}"
+  
 }
