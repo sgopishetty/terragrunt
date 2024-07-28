@@ -9,6 +9,9 @@ on:
       - 'develop'
       - 'main'
 
+permissions:
+  id-token: write  # Granting id-token permission to the nested workflow
+
 jobs:
   App_Deploy:
       uses: ./.github/workflows/app-deploy.yml
