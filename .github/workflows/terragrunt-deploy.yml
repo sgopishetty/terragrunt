@@ -63,7 +63,7 @@ run-name: Deploy '${{ inputs.git_project }}@${{ inputs.git_ref }}' from '${{ inp
 
 jobs:
 
-  Plan&Apply:
+  Plan_Apply:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
