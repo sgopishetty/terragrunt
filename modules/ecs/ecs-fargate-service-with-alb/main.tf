@@ -45,7 +45,7 @@ module "fargate_service" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
   # source = "git::git@github.com:gruntwork-io/terraform-aws-ecs.git//modules/ecs-service?ref=v1.0.8"
-  source = "/mnt/c/Users/WoW/Documents/abhi/terragrunt/modules/ecs/ecs-service"
+  source = "../ecs-service"
 
   service_name    = var.service_name
   ecs_cluster_arn = var.ecs_cluster_arn
@@ -164,7 +164,7 @@ resource "aws_security_group_rule" "allow_inbound_on_container_port" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "alb" {
-  source = "/mnt/c/Users/WoW/Documents/abhi/terragrunt/modules/aws-load-balancer/alb"
+  source = "../../aws-load-balancer/alb"
 
   alb_name        = var.alb_name
   is_internal_alb = var.is_internal_alb
