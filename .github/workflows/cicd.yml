@@ -19,11 +19,11 @@ jobs:
       with:
         git_project: sgopishetty/terragrunt
         git_ref: ${{ github.ref }}
-  #Deploy:
-  #  # needs: Build
-  #  uses: ./.github/workflows/terragrunt-deploy.yml
-  #  with:
-  #    git_project: EpisourceLLC/chapi
-  #    git_ref: ${{ github.ref }}
-  #    terragrunt_dir: ./infrastructure/EPI-LEGACY/us-east-1/dev
-  #    # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}
+  Deploy:
+    needs: App_Deploy
+    uses: ./.github/workflows/terragrunt-deploy.yml
+    with:
+      git_project: sgopishetty/terragrunt
+      git_ref: ${{ github.ref }}
+      terragrunt_dir: ./resources/us-east-1/dev
+      # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}
