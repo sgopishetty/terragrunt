@@ -38,9 +38,7 @@ jobs:
   Build:
     name: Build and Push Image to ECR
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
+    
 
     env:
       EPI_TEAM: "qe"
