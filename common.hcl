@@ -1,6 +1,6 @@
 locals {
   # The default tags to apply in all environments.
-  team_name = "terraf"
+  team_name = "terra"
   tags = {
     #"epi:product-stream" = "product-engineering",
     "epi:team"           = "quality-engineering",

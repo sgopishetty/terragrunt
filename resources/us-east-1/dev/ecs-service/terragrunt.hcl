@@ -33,7 +33,7 @@ locals {
     #"epi:environment"    = "production",
     #"epi:owner"          = "quality-engineering",
   }
-  commit_sha         =  get_env("COMMIT_SHA", "lates")  # Default to "latest" if COMMIT_SHA is not set
+  commit_sha         =  get_env("COMMIT_SHA", "1.0")  # Default to "latest" if COMMIT_SHA is not set
   # Run the script to generate the task definition JSON
   container_definitions_path = run_cmd("bash", "${get_terragrunt_dir()}/generate_task_definition.sh", "${get_terragrunt_dir()}/chapi-task-definition.json", "${get_terragrunt_dir()}/chapi-task-definition.json", local.commit_sha, local.service)
 }
@@ -57,8 +57,9 @@ inputs = {
   #})
   container_definitions_path = "${get_terragrunt_dir()}/chapi-task-definition.json"
 
-  private_subnet_ids = dependency.subnets.outputs.private_subnets
-  assign_public_ip   = false
+  private_subnet_ids = dependency.subnets.outputs.public_subnets
+  assign_public_ip   = true
+  enable_ecs_deployment_check = true
 
   # Auto scaling
   use_auto_scaling        = true
@@ -72,7 +73,7 @@ inputs = {
   alb_protocol          = "HTTP"
   health_check_protocol = "HTTP"
   health_check_path     = "/"
-  vpc_id                = "vpc-04706f24c5d6cadc6"
+  vpc_id                = "vpc-06a51eb1b61b77c3f"
 
   # ALB configuration
   alb_name            = "chapi-ecs-test"

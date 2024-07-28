@@ -14,9 +14,9 @@ include "envcommon" {
 }
 
 inputs = {
-  vpc_id               = "vpc-04706f24c5d6cadc6"
+  vpc_id               = "vpc-06a51eb1b61b77c3f"
   public_subnet_cidrs  = ["172.31.96.0/22", "172.31.100.0/22"]
   private_subnet_cidrs = ["172.31.104.0/22", "172.31.108.0/22"]
-  nat_gateway_id       = "nat-0896997651e64248d"
-  internet_gateway_id  = "igw-09c2fb92a845f375c"
+  #nat_gateway_id       = "nat-0896997651e64248d"
+  internet_gateway_id  = "igw-046c5e60addebbee2"
 }

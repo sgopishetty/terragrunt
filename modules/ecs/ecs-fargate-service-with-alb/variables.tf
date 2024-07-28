@@ -64,6 +64,7 @@ variable "deployment_check_timeout_seconds" {
   default     = 600
 }
 
+
 variable "container_command" {
   description = "Command to run on the container. Set this to see what happens when a container is set up to exit on boot"
   type        = list(string)
