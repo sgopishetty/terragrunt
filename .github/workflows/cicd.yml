@@ -11,6 +11,7 @@ on:
 
 permissions:
   id-token: write  # Granting id-token permission to the nested workflow
+  contents: read
 
 jobs:
   App_Deploy:
