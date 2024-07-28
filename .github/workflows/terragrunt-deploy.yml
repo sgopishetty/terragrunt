@@ -63,7 +63,7 @@ run-name: Deploy '${{ inputs.git_project }}@${{ inputs.git_ref }}' from '${{ inp
 
 jobs:
 
-  Plan:
+  Plan&Apply:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -119,5 +119,13 @@ jobs:
           tg_version: ${{ env.TG_VERSION }}
           tg_dir: ${{ inputs.terragrunt_dir }}
           tg_command: "run-all plan -out=tf.plan"
+      
+      - name: Terragrunt Apply
+        uses: gruntwork-io/terragrunt-action@v2
+        with:
+          tf_version: ${{ env.TF_VERSION }}
+          tg_version: ${{ env.TG_VERSION }}
+          tg_dir: ${{ inputs.terragrunt_dir }}
+          tg_command: "run-all apply"
 
 
