@@ -245,6 +245,7 @@ data "aws_acm_certificate" "additional_certs" {
 
 data "aws_subnet" "this" {
   id = var.vpc_subnet_ids[0]
+  depends_on = [null_resource.dependency_getter]
 }
 
 # Create a Security Group for the ALB itself.
