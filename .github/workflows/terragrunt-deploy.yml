@@ -126,6 +126,6 @@ jobs:
           tf_version: ${{ env.TF_VERSION }}
           tg_version: ${{ env.TG_VERSION }}
           tg_dir: ${{ inputs.terragrunt_dir }}
-          tg_command: "run-all apply"
+          tg_command: "run-all destroy"
 
 
