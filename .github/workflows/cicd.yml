@@ -20,7 +20,7 @@ jobs:
   #      git_project: sgopishetty/terragrunt
   #      git_ref: ${{ github.ref }}
   Deploy:
-    needs: App_Deploy
+    #needs: App_Deploy
     uses: ./.github/workflows/terragrunt-deploy.yml
     with:
       git_project: sgopishetty/terragrunt
