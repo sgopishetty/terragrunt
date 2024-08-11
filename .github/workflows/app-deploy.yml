@@ -81,7 +81,7 @@ jobs:
       - name: Determine commit SHA
         id: get-sha
         run: |
-          if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+          if [ ${{ github.event.pull_request.merged }} = true ]; then
             MERGE_COMMIT_SHA=$(git rev-parse HEAD)
             echo "COMMIT_SHA=$MERGE_COMMIT_SHA" >> $GITHUB_ENV
             cat $GITHUB_ENV
