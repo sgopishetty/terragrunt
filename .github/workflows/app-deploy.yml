@@ -83,7 +83,7 @@ jobs:
         run: |
           if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
             # If the PR is merged, use the merge commit SHA
-            echo "COMMIT_SHA=$(git rev-parse ${{ github.sha }})" >> $GITHUB_ENV
+            echo "COMMIT_SHA=${{ github.event.after }}" >> $GITHUB_ENV
           else
             # If the PR is not merged, use the head commit SHA of the PR branch
             echo "COMMIT_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})" >> $GITHUB_ENV
