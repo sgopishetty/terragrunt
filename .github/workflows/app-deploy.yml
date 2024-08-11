@@ -85,7 +85,7 @@ jobs:
             cat $GITHUB_ENV
       
       - name: Determine PR Branch HEAD commit SHA
-        if: github.event == 'pull_request'
+        if: github.event_name  == 'pull_request'
         run: |
             echo "COMMIT_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
             cat $GITHUB_ENV
