@@ -1,3 +1,4 @@
+#test1
 name: Chapi Application and Infrastructure Deployment
 
 on:
@@ -14,16 +15,16 @@ permissions:
   contents: read
 
 jobs:
-  #App_Deploy:
-  #    uses: ./.github/workflows/app-deploy.yml
-  #    with:
-  #      git_project: sgopishetty/terragrunt
-  #      git_ref: ${{ github.ref }}
-  Deploy:
-    #needs: App_Deploy
-    uses: ./.github/workflows/terragrunt-deploy.yml
-    with:
-      git_project: sgopishetty/terragrunt
-      git_ref: ${{ github.ref }}
-      terragrunt_dir: ./resources/us-east-1/dev
+  App_Deploy:
+      uses: ./.github/workflows/app-deploy.yml
+      with:
+        git_project: sgopishetty/terragrunt
+        git_ref: ${{ github.ref }}
+  #Deploy:
+  #  #needs: App_Deploy
+  #  uses: ./.github/workflows/terragrunt-deploy.yml
+  #  with:
+  #    git_project: sgopishetty/terragrunt
+  #    git_ref: ${{ github.ref }}
+  #    terragrunt_dir: ./resources/us-east-1/dev
       # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}
