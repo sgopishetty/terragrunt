@@ -77,6 +77,17 @@ jobs:
         with:
           repository: ${{ env.GIT_PROJECT }}
           ref: ${{ env.GIT_REF }}
+      
+      - name: Determine commit SHA
+        id: get-sha
+        run: |
+          if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            # If the PR is merged, use the merge commit SHA
+            echo "COMMIT_SHA=${GITHUB_SHA}" >> $GITHUB_ENV
+          else
+            # If the PR is not merged, use the head commit SHA of the PR branch
+            echo "COMMIT_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})" >> $GITHUB_ENV
+          fi
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -86,7 +97,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ env.COMMIT_SHA }}
         run: |
           # Build a docker container and
           # push it to ECR so that it can
