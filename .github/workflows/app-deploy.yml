@@ -86,7 +86,7 @@ jobs:
             cat $GITHUB_ENV
           else
             echo "COMMIT_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})" >> $GITHUB_ENV
-            $GITHUB_ENV
+            cat $GITHUB_ENV
           fi
 
       - name: Login to Amazon ECR
