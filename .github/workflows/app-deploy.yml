@@ -78,17 +78,18 @@ jobs:
           repository: ${{ env.GIT_PROJECT }}
           ref: ${{ env.GIT_REF }}
       
-      - name: Determine PR Merge commit SHA
-        if: github.event.pull_request.merged == true
+      - name: Determine commit SHA
+        id: get-sha
         run: |
-            echo "COMMIT_SHA=${{ github.event.after }}" >> $GITHUB_ENV
+          if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            MERGE_COMMIT_SHA=$(git rev-parse HEAD)
+            echo "COMMIT_SHA=$MERGE_COMMIT_SHA" >> $GITHUB_ENV
             cat $GITHUB_ENV
-      
-      - name: Determine PR Branch HEAD commit SHA
-        if: github.event_name  == 'pull_request'
-        run: |
-            echo "COMMIT_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          else
+            PR_HEAD_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})
+            echo "COMMIT_SHA=$PR_HEAD_SHA" >> $GITHUB_ENV
             cat $GITHUB_ENV
+          fi
 
       - name: Login to Amazon ECR
         id: login-ecr
