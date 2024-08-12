@@ -33,6 +33,10 @@ on:
         required: false
         type: string
         default: "flaskapp"
+      commit_id:
+        required: true 
+        type: string
+        default: "latest"
 
 jobs:
   Build:
@@ -51,6 +55,7 @@ jobs:
       GIT_PROJECT: ${{ inputs.git_project }}
       GIT_REF: ${{ inputs.git_ref }}
       ECR_REPOSITORY: ${{inputs.ecr_repository}}
+      COMMIT_SHA: ${{inputs.commit_id}}
       # ECS_SERVICE: MY_ECS_SERVICE                 # set this to your Amazon ECS service name
       # ECS_CLUSTER: MY_ECS_CLUSTER                 # set this to your Amazon ECS cluster name
       # ECS_TASK_DEFINITION: MY_ECS_TASK_DEFINITION # set this to the path to your Amazon ECS task definition
@@ -78,16 +83,6 @@ jobs:
           repository: ${{ env.GIT_PROJECT }}
           ref: ${{ env.GIT_REF }}
       
-      - name: Determine commit SHA
-        id: get-sha
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            PR_HEAD_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})
-            echo "COMMIT_SHA=$PR_HEAD_SHA" >> $GITHUB_ENV
-          else
-            MERGE_COMMIT_SHA=$(git rev-parse ${{ github.sha }})
-            echo "COMMIT_SHA=$MERGE_COMMIT_SHA" >> $GITHUB_ENV
-          fi
 
       - name: Login to Amazon ECR
         id: login-ecr
