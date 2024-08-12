@@ -16,16 +16,37 @@ permissions:
   contents: read
 
 jobs:
-  App_Deploy:
-      uses: ./.github/workflows/app-deploy.yml
-      with:
-        git_project: sgopishetty/terragrunt
-        git_ref: ${{ github.ref }}
-  #Deploy:
-  #  #needs: App_Deploy
-  #  uses: ./.github/workflows/terragrunt-deploy.yml
-  #  with:
-  #    git_project: sgopishetty/terragrunt
-  #    git_ref: ${{ github.ref }}
-  #    terragrunt_dir: ./resources/us-east-1/dev
+  determine_commit_sha:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Determine commit SHA
+        id: get-sha
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            PR_HEAD_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})
+            echo "COMMIT_SHA=$PR_HEAD_SHA" >> $GITHUB_OUTPUT
+          else
+            MERGE_COMMIT_SHA=$(git rev-parse ${{ github.sha }})
+            echo "COMMIT_SHA=$MERGE_COMMIT_SHA" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      COMMIT_SHA: ${{ steps.get-sha.outputs.COMMIT_SHA }}
+  app_deploy:
+    needs: determine_commit_sha
+    uses: ./.github/workflows/app-deploy.yml
+    with:
+      git_project: sgopishetty/terragrunt
+      git_ref: ${{ github.ref }}
+      commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+  Deploy:
+    needs: [determine_commit_sha, app_deploy]
+    uses: ./.github/workflows/terragrunt-deploy.yml
+    with:
+      git_project: sgopishetty/terragrunt
+      git_ref: ${{ github.ref }}
+      terragrunt_dir: ./resources/us-east-1/dev
+      commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
       # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}

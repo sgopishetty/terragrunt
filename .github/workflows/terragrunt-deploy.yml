@@ -58,6 +58,10 @@ on:
         required: false
         type: boolean
         default: false
+      commit_id:
+        required: false 
+        type: string
+        default: "latest"
 
 run-name: Deploy '${{ inputs.git_project }}@${{ inputs.git_ref }}' from '${{ inputs.terragrunt_dir }}' by @${{ github.actor }}
 
@@ -79,7 +83,7 @@ jobs:
       AWS_ROLE_DURATION_SECONDS: ${{ inputs.aws_role_duration_seconds }}
       TF_VERSION: ${{ inputs.tf_version }}
       TG_VERSION: ${{ inputs.tg_version }}
-      COMMIT_SHA: ${{ github.sha }}
+      COMMIT_SHA: ${{ inputs.commit_id }}
 
     steps:
       - name: Configure AWS credentials
@@ -126,6 +130,6 @@ jobs:
           tf_version: ${{ env.TF_VERSION }}
           tg_version: ${{ env.TG_VERSION }}
           tg_dir: ${{ inputs.terragrunt_dir }}
-          tg_command: "run-all destroy"
+          tg_command: "run-all apply"
 
 
