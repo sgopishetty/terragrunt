@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
       - name: Determine commit SHA
         id: get-sha
         run: |
@@ -42,7 +42,7 @@ jobs:
       git_ref: ${{ github.ref }}
       commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
   Deploy:
-    needs: determine_commit_sha
+    needs: [determine_commit_sha, app_deploy]
     uses: ./.github/workflows/terragrunt-deploy.yml
     with:
       git_project: sgopishetty/terragrunt
