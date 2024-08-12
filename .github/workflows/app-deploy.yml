@@ -81,14 +81,12 @@ jobs:
       - name: Determine commit SHA
         id: get-sha
         run: |
-          if [ ${{ github.event.pull_request.merged }} = true ]; then
-            MERGE_COMMIT_SHA=$(git rev-parse HEAD)
-            echo "COMMIT_SHA=$MERGE_COMMIT_SHA" >> $GITHUB_ENV
-            cat $GITHUB_ENV
-          else
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             PR_HEAD_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})
             echo "COMMIT_SHA=$PR_HEAD_SHA" >> $GITHUB_ENV
-            cat $GITHUB_ENV
+          else
+            MERGE_COMMIT_SHA=$(git rev-parse ${{ github.sha }})
+            echo "COMMIT_SHA=$MERGE_COMMIT_SHA" >> $GITHUB_ENV
           fi
 
       - name: Login to Amazon ECR
