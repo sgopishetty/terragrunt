@@ -19,6 +19,9 @@ jobs:
   determine_commit_sha:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
       - name: Determine commit SHA
         id: get-sha
         run: |
