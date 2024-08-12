@@ -27,10 +27,10 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             PR_HEAD_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})
-            echo "::set-output name=COMMIT_SHA=$PR_HEAD_SHA" 
+            echo "COMMIT_SHA=$PR_HEAD_SHA" >> $GITHUB_OUTPUT
           else
             MERGE_COMMIT_SHA=$(git rev-parse ${{ github.sha }})
-            echo "::set-output name=COMMIT_SHA=$MERGE_COMMIT_SHA" 
+            echo "COMMIT_SHA=$MERGE_COMMIT_SHA" >> $GITHUB_OUTPUT
           fi
     outputs:
       COMMIT_SHA: ${{ steps.get-sha.outputs.COMMIT_SHA }}
