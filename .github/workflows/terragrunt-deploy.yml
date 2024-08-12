@@ -59,7 +59,7 @@ on:
         type: boolean
         default: false
       commit_id:
-        required: true 
+        required: false 
         type: string
         default: "latest"
 
