@@ -45,22 +45,16 @@ jobs:
       git_ref: ${{ github.ref }}
       commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
       ecr_repository: flaskapp
-  dev_terragrunt_Deploy:
-    runs-on: ubuntu-latest
+  dev_terragrunt_deploy:
     needs: [determine_commit_sha, dev_app_deploy]
     environment: 'dev'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Deploy Terragrunt Dev
-        uses: ./.github/workflows/terragrunt-deploy.yml
-        with:
-          git_project: sgopishetty/terragrunt
-          git_ref: ${{ github.ref }}
-          terragrunt_dir: ./resources/us-east-1/dev
-          commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
-          # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}
+    uses: ./.github/workflows/terragrunt-deploy.yml
+    with:
+      git_project: sgopishetty/terragrunt
+      git_ref: ${{ github.ref }}
+      terragrunt_dir: ./resources/us-east-1/dev
+      commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+      # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}
   uat_app_deploy:
     runs-on: ubuntu-latest
     needs: determine_commit_sha
