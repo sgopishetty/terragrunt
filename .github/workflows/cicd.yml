@@ -54,6 +54,7 @@ jobs:
       terragrunt_dir: ./resources/us-east-1/dev
       commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
   manual_approval:
+    runs-on: ubuntu-latest
     needs: dev_terragrunt_deploy
     steps:
       - name: Request manual approval
