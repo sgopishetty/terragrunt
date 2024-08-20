@@ -42,11 +42,9 @@ jobs:
     needs: determine_commit_sha
     environment: 'dev'
     steps: 
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v4
       - name: Deploy App Dev
-        uses: ~/.github/workflows/app-deploy.yml
+        uses: ./.github/workflows/app-deploy.yml
         with:
           git_project: sgopishetty/terragrunt
           git_ref: ${{ github.ref }}
