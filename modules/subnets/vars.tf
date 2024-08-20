@@ -1,4 +1,4 @@
-data "aws_availability_zones" "available" {}
+#data "aws_availability_zones" "available" {}
 
 variable "vpc_id" {
   description = "The ID of the VPC where subnets will be created"
@@ -43,8 +43,8 @@ variable "internet_gateway_id" {
   type = string
 }
 
-variable "availability_zones" {
-  description = "List of availability zones to deploy resources into."
-  type        = list(string)
-  default     = data.aws_availability_zones.available.names
-}
+#variable "availability_zones" {
+#  description = "List of availability zones to deploy resources into."
+#  type        = list(string)
+#  default     = data.aws_availability_zones.available.names
+#}
