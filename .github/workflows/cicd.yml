@@ -39,6 +39,9 @@ jobs:
     needs: determine_commit_sha
     environment: 'dev'
     steps: 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Deploy App Dev
         uses: ./.github/workflows/app-deploy.yml
         with:
@@ -51,6 +54,9 @@ jobs:
     needs: [determine_commit_sha, dev_app_deploy]
     environment: 'dev'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Deploy Terragrunt Dev
         uses: ./.github/workflows/terragrunt-deploy.yml
         with:
@@ -64,6 +70,9 @@ jobs:
     needs: determine_commit_sha
     environment: 'uat'
     steps: 
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Deploy App uat
         uses: ./.github/workflows/app-deploy.yml
         with:
@@ -76,6 +85,9 @@ jobs:
     needs: [determine_commit_sha, uat_app_deploy]
     environment: 'uat'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name: Deploy Terragrunt UAT
         uses: ./.github/workflows/terragrunt-deploy.yml
         with:
