@@ -42,7 +42,7 @@ jobs:
       git_project: sgopishetty/terragrunt
       git_ref: ${{ github.ref }}
       commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
-      ecr_repository: "flaskapp"
+      ecr_repository: flaskapp
   dev_terragrunt_Deploy:
     needs: [determine_commit_sha, dev_app_deploy]
     environment: 'dev'
@@ -61,7 +61,7 @@ jobs:
       git_project: sgopishetty/terragrunt
       git_ref: ${{ github.ref }}
       commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
-      ecr_repository: "flaskappuat"
+      ecr_repository: flaskappuat
   uat_terragrunt_Deploy:
     needs: [determine_commit_sha, uat_app_deploy]
     environment: 'uat'
