@@ -57,7 +57,7 @@ inputs = {
   #})
   container_definitions_path = "${get_terragrunt_dir()}/chapi-task-definition.json"
 
-  private_subnet_ids = ["172.31.96.0/22", "172.31.100.0/22"]
+  private_subnet_ids = dependency.subnets.outputs.public_subnets
   assign_public_ip   = true
   enable_ecs_deployment_check = true
 
@@ -81,7 +81,7 @@ inputs = {
   #create_alb_listener_https_rule = true
   http_listener_ports = ["80"]
   create_alb_listener_http_rule = true
-  public_subnet_ids   = ["172.31.96.0/22", "172.31.100.0/22"]
+  public_subnet_ids   = dependency.subnets.outputs.public_subnets
   #https_listener_ports_and_ssl_certs_num = "1"
   #https_listener_ports_and_ssl_certs = [
   #  {
@@ -110,5 +110,15 @@ dependency "cluster" {
 
   mock_outputs = {
     ecs_cluster_arn = ["known-after-apply"]
+  }
+}
+
+dependency "subnets" {
+  config_path = "${get_terragrunt_dir()}/../../dev/subnets"
+  
+
+  mock_outputs = {
+    private_subnets = ["known-after-apply"],
+    public_subnets = ["known-after-apply"]
   }
 }

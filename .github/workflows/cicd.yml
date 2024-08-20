@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Determine commit SHA
         id: get-sha
@@ -62,8 +62,8 @@ jobs:
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: sgopishetty  # Replace with GitHub usernames of approvers
-          # Optionally, set timeout in minutes (e.g., timeout-minutes: 30)
+          approvers: sgopishetty
+          timeout-minutes: 10
   uat_app_deploy:
     needs: ["determine_commit_sha","manual_approval"]
     uses: ./.github/workflows/app-deploy.yml
