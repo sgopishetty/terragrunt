@@ -26,7 +26,8 @@ jobs:
         id: get-sha
         run: |
           pwd
-          ls -l
+          ls -al
+          ls -l ./.github/workflows/
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             PR_HEAD_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})
             echo "COMMIT_SHA=$PR_HEAD_SHA" >> $GITHUB_OUTPUT
