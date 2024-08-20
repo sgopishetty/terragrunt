@@ -47,7 +47,7 @@ jobs:
       ecr_repository: flaskapp
   dev_terragrunt_deploy:
     needs: [determine_commit_sha, dev_app_deploy]
-    uses: ./.github/actions/terragrunt-deploy.yml
+    uses: ./.github/workflows/terragrunt-deploy.yml
     with:
       git_project: sgopishetty/terragrunt
       git_ref: ${{ github.ref }}
@@ -72,7 +72,7 @@ jobs:
       ecr_repository: flaskappuat
   uat_terragrunt_deploy:
     needs: [determine_commit_sha, dev_app_deploy]
-    uses: ./.github/actions/terragrunt-deploy.yml
+    uses: ./.github/workflows/terragrunt-deploy.yml
     with:
       git_project: sgopishetty/terragrunt
       git_ref: ${{ github.ref }}
