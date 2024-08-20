@@ -34,15 +34,18 @@ jobs:
           fi
     outputs:
       COMMIT_SHA: ${{ steps.get-sha.outputs.COMMIT_SHA }}
-  app_deploy:
+  dev_app_deploy:
     needs: determine_commit_sha
+    environment: 'dev'
     uses: ./.github/workflows/app-deploy.yml
     with:
       git_project: sgopishetty/terragrunt
       git_ref: ${{ github.ref }}
       commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
-  Deploy:
-    needs: [determine_commit_sha, app_deploy]
+      ecr_repository: "flaskapp"
+  dev_terragrunt_Deploy:
+    needs: [determine_commit_sha, dev_app_deploy]
+    environment: 'dev'
     uses: ./.github/workflows/terragrunt-deploy.yml
     with:
       git_project: sgopishetty/terragrunt
@@ -50,3 +53,21 @@ jobs:
       terragrunt_dir: ./resources/us-east-1/dev
       commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
       # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}
+  uat_app_deploy:
+    needs: determine_commit_sha
+    environment: 'uat'
+    uses: ./.github/workflows/app-deploy.yml
+    with:
+      git_project: sgopishetty/terragrunt
+      git_ref: ${{ github.ref }}
+      commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+      ecr_repository: "flaskappuat"
+  uat_terragrunt_Deploy:
+    needs: [determine_commit_sha, uat_app_deploy]
+    environment: 'uat'
+    uses: ./.github/workflows/terragrunt-deploy.yml
+    with:
+      git_project: sgopishetty/terragrunt
+      git_ref: ${{ github.ref }}
+      terragrunt_dir: ./resources/us-east-1/uat
+      commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
