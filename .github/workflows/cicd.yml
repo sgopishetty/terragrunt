@@ -38,12 +38,14 @@ jobs:
           fi
     outputs:
       COMMIT_SHA: ${{ steps.get-sha.outputs.COMMIT_SHA }}
-  runs-on: ubuntu-latest
+  
+  dev_app_deploy:
+    runs-on: ubuntu-latest
     needs: determine_commit_sha
     environment: 'dev'
     steps: 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Deploy App uat
         uses: ./.github/actions/app-deploy.yml
