@@ -62,7 +62,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      -name: Terragrunt Dev Deploy
+      - name: Terragrunt Dev Deploy
         uses: ./.github/actions/terragrunt-deploy
         with:
           git_project: sgopishetty/terragrunt
