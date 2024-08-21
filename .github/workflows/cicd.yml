@@ -47,8 +47,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy App uat
-        uses: ./.github/actions/app-deploy.yml
+      - name: Deploy App Dev
+        uses: ./.github/actions/appdeploy
         with:
           git_project: sgopishetty/terragrunt
           git_ref: ${{ github.ref }}
