@@ -96,7 +96,6 @@ runs:
         tg_command: "run-all plan -out=tf.plan"
       
     - name: Terragrunt Apply
-      if: ${{ inputs.skip_apply == false }}
       uses: gruntwork-io/terragrunt-action@v2
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
