@@ -1,0 +1,71 @@
+name: "Build and Deploy App"
+description: "Builds a Docker image, pushes it to Amazon ECR, and deploys it to ECS."
+
+inputs:
+  git_project:
+    description: "The GitHub project to deploy from"
+    required: false
+    default: ${{ github.repository }}
+  git_ref:
+    description: "The GitHub branch or tag to deploy from"
+    required: false
+    default: ${{ github.ref }}
+  aws_region:
+    description: "The AWS region to deploy to"
+    required: false
+    default: "us-east-1"
+  aws_role_arn:
+    description: "The AWS role to assume"
+    required: false
+    default: "arn:aws:iam::010526272542:role/github-ci"
+  aws_role_duration_seconds:
+    description: "The AWS role duration in seconds"
+    required: false
+    default: 3600
+  ecr_repository:
+    description: "The ECR repository to publish to"
+    required: false
+    default: "flaskapp"
+  commit_id:
+    description: "The commit ID to tag the Docker image with"
+    required: false 
+    default: "latest"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws_region }}
+        role-to-assume: ${{ inputs.aws_role_arn }}
+        role-session-name: qe_shared_services_build_prod_action
+        role-duration-seconds: ${{ inputs.aws_role_duration_seconds }}
+        output-credentials: true
+
+    - name: Sts GetCallerIdentity
+      run: |
+        aws sts get-caller-identity
+        aws configure list
+
+    - name: Checkout - ${{ inputs.git_project }}@${{ inputs.git_ref }}
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.git_project }}
+        ref: ${{ inputs.git_ref }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ inputs.commit_id }}
+      run: |
+        cd app/
+        docker build -t $ECR_REGISTRY/${{ inputs.ecr_repository }}:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/${{ inputs.ecr_repository }}:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/${{ inputs.ecr_repository }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
