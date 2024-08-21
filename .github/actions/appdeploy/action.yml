@@ -69,3 +69,4 @@ runs:
         docker build -t $ECR_REGISTRY/${{ inputs.ecr_repository }}:$IMAGE_TAG .
         docker push $ECR_REGISTRY/${{ inputs.ecr_repository }}:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/${{ inputs.ecr_repository }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      shell: bash
