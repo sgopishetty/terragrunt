@@ -48,6 +48,7 @@ runs:
       run: |
         aws sts get-caller-identity
         aws configure list
+      shell: bash
 
     - name: Checkout - ${{ inputs.git_project }}@${{ inputs.git_ref }}
       uses: actions/checkout@v4
