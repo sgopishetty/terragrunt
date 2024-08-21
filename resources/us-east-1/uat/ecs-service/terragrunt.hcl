@@ -76,7 +76,7 @@ inputs = {
   vpc_id                = "vpc-06a51eb1b61b77c3f"
 
   # ALB configuration
-  alb_name            = "chapi-ecs-test"
+  alb_name            = "chapi-ecs-${local.aws_region}-${local.env}"
   is_internal_alb     = false
   #create_alb_listener_https_rule = true
   http_listener_ports = ["80"]
