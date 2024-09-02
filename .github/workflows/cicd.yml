@@ -14,17 +14,21 @@ on:
 permissions:
   id-token: write  # Granting id-token permission to the nested workflow
   contents: read
+  issues: write
 
 jobs:
   determine_commit_sha:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Determine commit SHA
         id: get-sha
         run: |
+          pwd
+          ls -al
+          ls -l ./.github/workflows/
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             PR_HEAD_SHA=$(git rev-parse ${{ github.event.pull_request.head.sha }})
             echo "COMMIT_SHA=$PR_HEAD_SHA" >> $GITHUB_OUTPUT
@@ -34,19 +38,81 @@ jobs:
           fi
     outputs:
       COMMIT_SHA: ${{ steps.get-sha.outputs.COMMIT_SHA }}
-  app_deploy:
+  
+  dev_app_deploy:
+    runs-on: ubuntu-latest
     needs: determine_commit_sha
-    uses: ./.github/workflows/app-deploy.yml
-    with:
-      git_project: sgopishetty/terragrunt
-      git_ref: ${{ github.ref }}
-      commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
-  Deploy:
-    needs: [determine_commit_sha, app_deploy]
-    uses: ./.github/workflows/terragrunt-deploy.yml
-    with:
-      git_project: sgopishetty/terragrunt
-      git_ref: ${{ github.ref }}
-      terragrunt_dir: ./resources/us-east-1/dev
-      commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
-      # skip_apply: ${{ !(github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'release') }}
+    environment: 'dev'
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy App Dev
+        uses: ./.github/actions/app-deploy
+        with:
+          git_project: sgopishetty/terragrunt
+          git_ref: ${{ github.ref }}
+          commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+          ecr_repository: flaskapp
+  dev_terragrunt_deploy:
+    runs-on: ubuntu-latest
+    needs: [determine_commit_sha, dev_app_deploy]
+    environment: 'dev'
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Terragrunt Dev Deploy
+        uses: ./.github/actions/terragrunt-deploy
+        with:
+          git_project: sgopishetty/terragrunt
+          git_ref: ${{ github.ref }}
+          terragrunt_dir: ./resources/us-east-1/dev
+          commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+  uat_app_deploy:
+    runs-on: ubuntu-latest
+    needs: determine_commit_sha
+    environment: 'uat'
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy App Dev
+        uses: ./.github/actions/app-deploy
+        with:
+          git_project: sgopishetty/terragrunt
+          git_ref: ${{ github.ref }}
+          commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+          ecr_repository: flaskappuat
+  uat_terragrunt_deploy:
+    runs-on: ubuntu-latest
+    needs: [determine_commit_sha, uat_app_deploy]
+    environment: 'uat'
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Terragrunt UAT Deploy
+        uses: ./.github/actions/terragrunt-deploy
+        with:
+          git_project: sgopishetty/terragrunt
+          git_ref: ${{ github.ref }}
+          terragrunt_dir: ./resources/us-east-1/uat
+          commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+  prod_app_deploy:
+    runs-on: ubuntu-latest
+    needs: determine_commit_sha
+    if: github.ref == 'refs/heads/main'
+    environment: 'prod'
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy App Dev
+        uses: ./.github/actions/app-deploy
+        with:
+          git_project: sgopishetty/terragrunt
+          git_ref: ${{ github.ref }}
+          commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+          ecr_repository: flaskappprod
+  

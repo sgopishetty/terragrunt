@@ -1,0 +1,106 @@
+name: "Terragrunt Plan and Deploy"
+description: "Runs Terragrunt plan and apply commands."
+
+inputs:
+  git_project:
+    description: "The GitHub project to deploy from"
+    required: false
+    default: ${{ github.repository }}
+  git_ref:
+    description: "The GitHub branch or tag to deploy from"
+    required: false
+    default: ${{ github.ref }}
+  aws_region:
+    description: "The AWS region to deploy to"
+    required: false
+    default: "us-east-1"
+  aws_role_arn:
+    description: "The AWS role to assume"
+    required: false
+    default: "arn:aws:iam::010526272542:role/github-ci"
+  aws_role_duration_seconds:
+    description: "The AWS role duration in seconds"
+    required: false
+    default: 3600
+  terragrunt_dir:
+    description: "The Terragrunt directory to deploy"
+    required: false
+    default: "./terraform/environment/prod"
+  skip_apply:
+    description: "Skip terragrunt apply job"
+    required: false
+    default: false
+  tf_version:
+    description: "Terraform version to use"
+    required: false
+    default: "1.2.0"
+  tg_version:
+    description: "Terragrunt version to use"
+    required: false
+    default: "0.50.2"
+  build_dir:
+    description: "The build directory to save artifacts"
+    required: false
+    default: ""
+  build_extract:
+    description: "Extract the downloaded files"
+    required: false
+    default: false
+  commit_id:
+    description: "The commit ID to use as environment variable"
+    required: false
+    default: "latest"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws_region }}
+        role-to-assume: ${{ inputs.aws_role_arn }}
+        role-session-name: qe_terragrunt_deploy_prod_action
+        role-duration-seconds: ${{ inputs.aws_role_duration_seconds }}
+        output-credentials: true
+
+    - name: Sts GetCallerIdentity
+      run: |
+        aws sts get-caller-identity
+        aws configure list
+      shell: bash
+
+    - name: Checkout - ${{ inputs.git_project }}@${{ inputs.git_ref }}
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.git_project }}
+        ref: ${{ inputs.git_ref }}
+
+    - name: Terragrunt Init
+      uses: gruntwork-io/terragrunt-action@v2
+      with:
+        tf_version: ${{ inputs.tf_version }}
+        tg_version: ${{ inputs.tg_version }}
+        tg_dir: ${{ inputs.terragrunt_dir }}
+        tg_command: "run-all init"
+
+    - name: Terragrunt Plan
+      id: plan
+      uses: gruntwork-io/terragrunt-action@v2
+      env:
+        COMMIT_SHA: ${{ inputs.commit_id }}
+      with:
+        tf_version: ${{ inputs.tf_version }}
+        tg_version: ${{ inputs.tg_version }}
+        tg_dir: ${{ inputs.terragrunt_dir }}
+        tg_command: "run-all plan -out=tf.plan"
+      
+    - name: Terragrunt Apply
+      uses: gruntwork-io/terragrunt-action@v2
+      env:
+        COMMIT_SHA: ${{ inputs.commit_id }}
+      with:
+        tf_version: ${{ inputs.tf_version }}
+        tg_version: ${{ inputs.tg_version }}
+        tg_dir: ${{ inputs.terragrunt_dir }}
+        tg_command: "run-all destroy"
