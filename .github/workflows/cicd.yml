@@ -6,10 +6,6 @@ on:
     types: [opened, synchronize, reopened]
     branches:
       - '*'
-  push:
-    branches:
-      - 'develop'
-      - 'main'
 
 permissions:
   id-token: write  # Granting id-token permission to the nested workflow
