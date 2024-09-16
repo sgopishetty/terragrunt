@@ -18,7 +18,7 @@ inputs = {
         effect = "Allow"
         actions = ["s3:PutObject"]
         principals = {
-            Service = ["delivery.logs.amazonaws.com"]
+            Service = ["elasticloadbalancing.amazonaws.com"]
         }
         keys = ["","/*"]
     }
