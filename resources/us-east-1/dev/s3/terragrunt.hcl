@@ -18,7 +18,7 @@ inputs = {
         effect = "Allow"
         actions = ["s3:PutObject","s3:ListBucket", "s3:GetBucketLocation", "s3:GetObject", "s3:DeleteObject"]
         principals = {
-            Service = ["elasticloadbalancing.amazonaws.com"]
+            Service = ["logdelivery.elasticloadbalancing.amazonaws.com"]
         }
         keys = ["","/*"]
     }
