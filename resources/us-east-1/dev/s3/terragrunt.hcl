@@ -18,7 +18,7 @@ inputs = {
         effect = "Allow"
         actions = ["s3:PutObject","s3:ListBucket", "s3:GetBucketLocation", "s3:GetObject", "s3:DeleteObject"]
         principals = {
-            AWS = ["arn:aws:iam::010526272542:root"]
+            AWS = ["arn:aws:iam::127311923021:root"]
         }
         keys = ["","/*"]
     }
