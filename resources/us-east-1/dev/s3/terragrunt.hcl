@@ -13,5 +13,14 @@ include "envcommon" {
 }
 
 inputs = {
-
+  bucket_policy_statements = {
+    AlbLogs = {
+        effect = "Allow"
+        actions = ["s3:PutObject"]
+        principals = {
+            Service = ["delivery.logs.amazonaws.com"]
+        }
+        keys = ["","/*"]
+    }
+  }
 }
