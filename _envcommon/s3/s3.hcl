@@ -23,5 +23,6 @@ locals {
 inputs = {
   primary_bucket = local.bucket
   tags           = local.tags
+  
 }
 
