@@ -49,6 +49,6 @@ dependency "service" {
   config_path = "${get_terragrunt_dir()}/../ecs-service"
 
   mock_outputs = {
-    alb_arn = ["arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-app-loadbalancer/50dc6c495c0c9188"]
+    alb_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-app-loadbalancer/50dc6c495c0c9188"
   }
 }
