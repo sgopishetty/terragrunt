@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/waf_web_acl"
+  source = "../../../../modules/waf_web_acl"
 }
 
 include "root" {
@@ -12,22 +12,17 @@ include "envcommon" {
   expose = true
 }
 
-dependency "dev_s3_state" {
-  config = {
-    backend = "s3"
-    config = {
-      bucket = "epi-stg-terra-tf-state"
-      key    = "new/resources/us-east-1/dev/ecs-service"
-      region = "us-east-1"
-    }
-  }
+
+locals {
+  dev_state = jsondecode(run_cmd("./get_state.sh", "-b", "epi-stg-terra-tf-state", "-k", "new/resources/us-east-1/dev/ecs-service/terraform.tfstate"))
+  #uat_state = jsondecode(run_cmd("./get_state.sh", "-b", "epi-stg-terra-tf-state", "-k", "new/resources/us-east-1/uat/ecs-service/terraform.tfstate"))
 }
 
 
 inputs = {
   name = "dev_uat_waf_acl"
   scope = "REGIONAL"
-  alb_arn = [dependency.dev_s3_state.outputs.alb_arn]
+  alb_arn = [local.dev_state.alb_arn]
   rules = [
     {
       name   = "AWSManagedRulesAmazonIpReputationList"
