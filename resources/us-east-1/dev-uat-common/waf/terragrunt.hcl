@@ -21,7 +21,7 @@ locals {
 
 inputs = {
   scope = "REGIONAL"
-  alb_arn = [local.dev_state.alb_arn]
+  alb_arns = [local.dev_state.alb_arn]
   rules = [
     {
       name   = "AWSManagedRulesAmazonIpReputationList"
