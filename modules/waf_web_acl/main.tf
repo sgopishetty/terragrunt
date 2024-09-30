@@ -37,6 +37,7 @@ resource "aws_wafv2_web_acl" "this" {
 
 # Association between WAF and ALB
 resource "aws_wafv2_web_acl_association" "this" {
-  resource_arn = var.alb_arn  # ARN of the ALB to associate the Web ACL with
+  for_each    = toset(var.alb_arns) # Iterate over the list of ALB ARNs
+  resource_arn = each.value          # ARN of the ALB to associate the Web ACL with
   web_acl_arn  = aws_wafv2_web_acl.this.arn
 }

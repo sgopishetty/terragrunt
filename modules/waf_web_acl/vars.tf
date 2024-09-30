@@ -16,7 +16,7 @@ variable "rules" {
   }))
 }
 
-variable "alb_arn" {
-  description = "The ARN of the Application Load Balancer to associate with the WAF"
-  type        = string
+variable "alb_arns" {
+  type = list(string)
+  description = "List of ALB ARNs to associate with the Web ACL"
 }

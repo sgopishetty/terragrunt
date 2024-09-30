@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../../modules/waf_web_acl"
+  source = "../../../modules/waf_web_acl"
 }
 
 include "root" {
@@ -12,10 +12,22 @@ include "envcommon" {
   expose = true
 }
 
+dependency "dev_s3_state" {
+  config = {
+    backend = "s3"
+    config = {
+      bucket = "epi-stg-terra-tf-state"
+      key    = "new/resources/us-east-1/dev/ecs-service"
+      region = "us-east-1"
+    }
+  }
+}
+
+
 inputs = {
-  name = "dev_waf_acl"
+  name = "dev_uat_waf_acl"
   scope = "REGIONAL"
-  alb_arn = dependency.service.outputs.alb_arn
+  alb_arn = [dependency.dev_s3_state.outputs.alb_arn]
   rules = [
     {
       name   = "AWSManagedRulesAmazonIpReputationList"
@@ -42,13 +54,4 @@ inputs = {
       rule_id = "AWSManagedRulesSQLiRuleSet"
     }
   ]
-}
-
-
-dependency "service" {
-  config_path = "${get_terragrunt_dir()}/../ecs-service"
-
-  mock_outputs = {
-    alb_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-app-loadbalancer/50dc6c495c0c9188"
-  }
 }
