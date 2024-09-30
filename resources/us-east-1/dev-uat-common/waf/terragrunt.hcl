@@ -13,15 +13,15 @@ include "envcommon" {
 }
 
 
-locals {
-  dev_state = jsondecode(run_cmd("bash", "${get_terragrunt_dir()}/get_state.sh", "-b", "epi-stg-terra-tf-state", "-k", "new/resources/us-east-1/dev/ecs-service/terraform.tfstate"))
-  #uat_state = jsondecode(run_cmd("./get_state.sh", "-b", "epi-stg-terra-tf-state", "-k", "new/resources/us-east-1/uat/ecs-service/terraform.tfstate"))
-}
+#locals {
+#  dev_state = jsondecode(run_cmd("bash", "${get_terragrunt_dir()}/get_state.sh", "-b", "epi-stg-terra-tf-state", "-k", "new/resources/us-east-1/dev/ecs-service/terraform.tfstate"))
+#  #uat_state = jsondecode(run_cmd("./get_state.sh", "-b", "epi-stg-terra-tf-state", "-k", "new/resources/us-east-1/uat/ecs-service/terraform.tfstate"))
+#}
 
 
 inputs = {
   scope = "REGIONAL"
-  alb_arns = [local.dev_state.alb_arn]
+  alb_arns = [dependency.dev_service_arn.outputs.alb_arn]
   rules = [
     {
       name   = "AWSManagedRulesAmazonIpReputationList"
@@ -48,4 +48,12 @@ inputs = {
       rule_id = "AWSManagedRulesSQLiRuleSet"
     }
   ]
+}
+
+dependency "dev_service_arn" {
+  config_path = "${get_terragrunt_dir()}/../../dev/ecs-service"
+
+  mock_outputs = {
+    alb_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/my-app-loadbalancer/50dc6c495c0c9188"
+  }
 }
