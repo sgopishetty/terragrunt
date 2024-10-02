@@ -21,71 +21,34 @@ include "envcommon" {
 
 inputs = {
   scope = "REGIONAL"
-  alb_arns = [dependency.dev_service_arn.outputs.alb_arn]
+  alb_arns = [dependency.dev_service_arn.alb_arn]
   rules = [
     {
-      name        = "AWSManagedRulesAmazonIpReputationList"
-      rule_id     = "AWSManagedRulesAmazonIpReputationList"
-      priority    = 2
+      name   = "AWSManagedRulesAmazonIpReputationList"
+      rule_id = "AWSManagedRulesAmazonIpReputationList"
     },
     {
-      name        = "AWSManagedRulesAnonymousIpList"
-      rule_id     = "AWSManagedRulesAnonymousIpList"
-      priority    = 3
-      override_action = "count"
-      excluded_rules  = ["HostingProviderIpList"]
+      name   = "AWSManagedRulesAnonymousIpList"
+      rule_id = "AWSManagedRulesAnonymousIpList"
     },
     {
-      name        = "AWSManagedRulesCommonRuleSet"
-      rule_id     = "AWSManagedRulesCommonRuleSet"
-      priority    = 4
+      name   = "AWSManagedRulesCommonRuleSet"
+      rule_id = "AWSManagedRulesCommonRuleSet"
     },
     {
-      name        = "AWSManagedRulesKnownBadInputsRuleSet"
-      rule_id     = "AWSManagedRulesKnownBadInputsRuleSet"
-      priority    = 5
+      name   = "AWSManagedRulesKnownBadInputsRuleSet"
+      rule_id = "AWSManagedRulesKnownBadInputsRuleSet"
     },
     {
-      name        = "AWSManagedRulesLinuxRuleSet"
-      rule_id     = "AWSManagedRulesLinuxRuleSet"
-      priority    = 6
+      name   = "AWSManagedRulesLinuxRuleSet"
+      rule_id = "AWSManagedRulesLinuxRuleSet"
     },
     {
-      name        = "AWSManagedRulesSQLiRuleSet"
-      rule_id     = "AWSManagedRulesSQLiRuleSet"
-      priority    = 7
-    },
-    {
-      name        = "Allow-Application-traffic"
-      priority    = 0
-      metric_name = "Allow-Application-traffic"
-      regex_match_statement = [{
-        regex_string = "\\/v1\\/events\\/ready-for-coding|\\/v1\\/healthcheck|\\/docs|\\/v1\\/docs\\/|\\/v1|\\/openapi.json"
-        text_transformations = [{
-          priority = 0
-          type     = "NONE"
-        }]
-      }]
-    },
-    {
-      name        = "Allow-git-pipeline"
-      priority    = 1
-      metric_name = "Allow-git-pipeline"
-      and_statement = [{
-        label_match_statement_scope = "LABEL"
-        label_match_statement_key   = "awswaf:managed:aws:anonymous-ip-list:HostingProviderIPList"
-        not_statement = {
-          regex_string = "\\/v1\\/events\\/ready-for-coding|\\/v1\\/healthcheck"
-          text_transformations = [{
-            priority = 0
-            type     = "NONE"
-          }]
-        }
-      }]
+      name   = "AWSManagedRulesSQLiRuleSet"
+      rule_id = "AWSManagedRulesSQLiRuleSet"
     }
   ]
 }
-
 
 dependency "dev_service_arn" {
   config_path = "${get_terragrunt_dir()}/../../dev/ecs-service"
