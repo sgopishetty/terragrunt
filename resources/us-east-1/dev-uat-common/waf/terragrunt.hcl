@@ -21,7 +21,7 @@ include "envcommon" {
 
 inputs = {
   scope = "REGIONAL"
-  alb_arns = [dependency.dev_service_arn.alb_arn]
+  alb_arns = [dependency.dev_service_arn.outputs.alb_arn]
   rules = [
     {
       name   = "AWSManagedRulesAmazonIpReputationList"
