@@ -9,7 +9,7 @@ resource "aws_wafv2_web_acl" "this" {
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name                = var.name
-    sampled_requests_enabled    = true
+    sampled_requests_enabled   = true
   }
 
   dynamic "rule" {
@@ -18,31 +18,31 @@ resource "aws_wafv2_web_acl" "this" {
       name     = rule.value.name
       priority = index(var.rules, rule.value)
 
-      # Define override action for AWSManagedRulesAnonymousIpList
+      # Override action for counting requests instead of blocking
       override_action {
-        # Check if the current rule requires an override action
-        dynamic "rule_action_override" {
-          for_each = rule.value.name == "AWSManagedRulesAnonymousIpList" ? [1] : []
-          content {
-            name = "HostingProviderIPList"  # Specify the override rule action here
-            action_to_use {
-              count {}  # Use count action
-            }
-          }
-        }
+        none {}  # Set to 'block {}' to block instead of count
       }
 
       statement {
         managed_rule_group_statement {
           vendor_name = "AWS"
           name        = rule.value.rule_id
+
+          
+          # Exclude specific rules for AWSManagedRulesAnonymousIpList
+          dynamic "excluded_rule" {
+            for_each = rule.value.rule_id == "AWSManagedRulesAnonymousIpList" ? ["HostingProviderIPList"] : []
+            content {
+              name = excluded_rule.value
+            }
+          }
         }
       }
 
       visibility_config {
         cloudwatch_metrics_enabled = true
         metric_name                = rule.value.name
-        sampled_requests_enabled    = true
+        sampled_requests_enabled   = true
       }
     }
   }

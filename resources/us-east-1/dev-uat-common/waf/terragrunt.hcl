@@ -30,6 +30,7 @@ inputs = {
     {
       name   = "AWSManagedRulesAnonymousIpList"
       rule_id = "AWSManagedRulesAnonymousIpList"
+      priority = 3
     },
     {
       name   = "AWSManagedRulesCommonRuleSet"
