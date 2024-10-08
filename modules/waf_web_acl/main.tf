@@ -116,57 +116,6 @@ resource "aws_wafv2_web_acl" "this" {
       }
     }
   }
-  
-  # Add Git pipeline rules
-  dynamic "rule" {
-    for_each = var.git_pipeline_rules_json
-    content {
-      name     = rule.value.Name
-      priority = rule.value.Priority
-
-      statement {
-        and_statement {
-          statement {
-            label_match_statement {
-              scope = rule.value.Statement.AndStatement.Statements[0].LabelMatchStatement.Scope
-              key   = rule.value.Statement.AndStatement.Statements[0].LabelMatchStatement.Key
-            }
-          }
-
-          statement {
-            not_statement {
-              statement {
-                regex_match_statement {
-                  regex_string = rule.value.Statement.AndStatement.Statements[1].NotStatement.Statement.RegexMatchStatement.RegexString
-                  field_to_match {
-                    uri_path {}
-                  }
-                 dynamic "text_transformation" {
-                  for_each = rule.value.Statement.AndStatement.Statements[1].NotStatement.Statement.RegexMatchStatement.TextTransformations
-                  content {
-                    priority = text_transformation.value.Priority
-                    type     = text_transformation.value.Type
-                  }
-                }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      action {
-        block {}
-      }
-
-      visibility_config {
-        cloudwatch_metrics_enabled = rule.value.VisibilityConfig.SampledRequestsEnabled
-        metric_name                = rule.value.VisibilityConfig.MetricName
-        sampled_requests_enabled    = rule.value.VisibilityConfig.CloudWatchMetricsEnabled
-      }
-    }
-  }
-
 
 }
 
