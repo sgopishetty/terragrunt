@@ -13,6 +13,7 @@ variable "rules" {
   type = list(object({
     name    = string
     rule_id = string
+    priority = number
   }))
 }
 
