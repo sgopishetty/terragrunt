@@ -116,8 +116,8 @@ resource "aws_wafv2_web_acl" "this" {
       }
     }
   }
-
-# Add Git pipeline rules
+  
+  # Add Git pipeline rules
   dynamic "rule" {
     for_each = var.git_pipeline_rules_json
     content {
@@ -166,6 +166,7 @@ resource "aws_wafv2_web_acl" "this" {
       }
     }
   }
+
 
 }
 

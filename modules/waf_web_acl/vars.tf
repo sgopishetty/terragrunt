@@ -77,11 +77,11 @@ variable "git_pipeline_rules_json" {
     Statement = object({
       AndStatement = object({
         Statements = list(object({
-          LabelMatchStatement = object({
+          LabelMatchStatement = optional(object({
             Scope = string
             Key   = string
-          })
-          NotStatement = object({
+          }))
+          NotStatement = optional(object({
             Statement = object({
               RegexMatchStatement = object({
                 RegexString      = string
@@ -94,7 +94,7 @@ variable "git_pipeline_rules_json" {
                 }))
               })
             })
-          })
+          }))
         }))
       })
     })
@@ -108,4 +108,3 @@ variable "git_pipeline_rules_json" {
     })
   }))
 }
-
