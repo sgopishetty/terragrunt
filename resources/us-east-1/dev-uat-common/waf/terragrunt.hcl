@@ -26,22 +26,27 @@ inputs = {
     {
       name   = "AWSManagedRulesAmazonIpReputationList"
       rule_id = "AWSManagedRulesAmazonIpReputationList"
+      priority = 1
     },
     {
       name   = "AWSManagedRulesCommonRuleSet"
       rule_id = "AWSManagedRulesCommonRuleSet"
+      priority = 2
     },
     {
       name   = "AWSManagedRulesKnownBadInputsRuleSet"
       rule_id = "AWSManagedRulesKnownBadInputsRuleSet"
+      priority = 4
     },
     {
       name   = "AWSManagedRulesLinuxRuleSet"
       rule_id = "AWSManagedRulesLinuxRuleSet"
+      priority = 5
     },
     {
       name   = "AWSManagedRulesSQLiRuleSet"
       rule_id = "AWSManagedRulesSQLiRuleSet"
+      priority = 6
     }
   ]
   # Custom rule as JSON

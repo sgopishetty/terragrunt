@@ -17,7 +17,7 @@ resource "aws_wafv2_web_acl" "this" {
     for_each = var.rules
     content {
       name     = rule.value.name
-      priority = index(var.rules, rule.value)
+      priority = rule.value.priority
 
       override_action {
         none {}  # Set to 'block {}' to block instead of count
