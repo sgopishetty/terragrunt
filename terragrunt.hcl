@@ -51,7 +51,6 @@ provider "aws" {
     tags = ${jsonencode(local.tags)}
   }
 }
- experiments = [ "module_variable_optional_attrs" ]
 EOF
 }
 
