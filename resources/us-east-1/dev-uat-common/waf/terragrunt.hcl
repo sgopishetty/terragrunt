@@ -36,17 +36,17 @@ inputs = {
     {
       name   = "AWSManagedRulesKnownBadInputsRuleSet"
       rule_id = "AWSManagedRulesKnownBadInputsRuleSet"
-      priority = 4
+      priority = 5
     },
     {
       name   = "AWSManagedRulesLinuxRuleSet"
       rule_id = "AWSManagedRulesLinuxRuleSet"
-      priority = 5
+      priority = 6
     },
     {
       name   = "AWSManagedRulesSQLiRuleSet"
       rule_id = "AWSManagedRulesSQLiRuleSet"
-      priority = 6
+      priority = 7
     }
   ]
   # Custom rule as JSON
@@ -109,6 +109,26 @@ inputs = {
         CloudWatchMetricsEnabled = true
         MetricName               = "Allow-Application-traffic"
       }
+    }
+  ]
+
+  git_waf_rules = [
+    {
+      Name        = "Allow-git-pipeline"
+      Priority    = 4
+      Statements  = [
+        {
+          LabelScope  = "LABEL"
+          LabelKey    = "awswaf:managed:aws:anonymous-ip-list:HostingProviderIPList"
+          RegexString = ""
+        },
+        {
+          LabelScope  = ""
+          LabelKey    = ""
+          RegexString = "\\/v1\\/events\\/ready-for-coding|\\/v1\\/healthcheck"
+        }
+      ]
+      MetricName  = "Allow-git-pipeline"
     }
   ]
 

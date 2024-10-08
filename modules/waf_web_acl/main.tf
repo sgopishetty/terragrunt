@@ -117,7 +117,63 @@ resource "aws_wafv2_web_acl" "this" {
     }
   }
 
+
+dynamic "rule" {
+    for_each = var.git_waf_rules
+    content {
+      name     = rule.value.Name
+      priority = rule.value.Priority
+
+      statement {
+        and_statement {
+          dynamic "statement" {
+            for_each = rule.value.Statements
+            content {
+              # LabelMatchStatement block
+              dynamic "label_match_statement" {
+                for_each = length(lookup(statement.value, "LabelScope", "")) > 0 ? [statement.value] : []
+                content {
+                  scope = statement.value.LabelScope
+                  key   = statement.value.LabelKey
+                }
+              }
+
+              # NotStatement with RegexMatchStatement block
+              dynamic "not_statement" {
+                for_each = length(lookup(statement.value, "RegexString", "")) > 0 ? [statement.value] : []
+                content {
+                  statement {
+                    regex_match_statement {
+                      regex_string = statement.value.RegexString
+                      field_to_match {
+                        uri_path {}
+                      }
+                      text_transformation {
+                        priority = 0
+                        type     = "NONE"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      action {
+        block {}
+      }
+
+      visibility_config {
+        sampled_requests_enabled    = true
+        cloudwatch_metrics_enabled  = true
+        metric_name                 = rule.value.MetricName
+      }
+    }
+  }
 }
+
 
 
 

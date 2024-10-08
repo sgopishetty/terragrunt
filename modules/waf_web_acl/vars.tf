@@ -69,3 +69,17 @@ variable "custom_regex_rules_json" {
     })
   }))
 }
+
+variable "git_waf_rules" {
+  description = "Git WAF rules"
+  type = list(object({
+    Name       = string
+    Priority   = number
+    Statements = list(object({
+      LabelScope       = string
+      LabelKey         = string
+      RegexString      = string
+    }))
+    MetricName = string
+  }))
+}
