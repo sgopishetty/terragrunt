@@ -20,3 +20,92 @@ variable "alb_arns" {
   type = list(string)
   description = "List of ALB ARNs to associate with the Web ACL"
 }
+
+variable "custom_rules_json" {
+  description = "Custom JSON rules including RuleActionOverrides and other statements"
+  type = list(object({
+    Name            = string
+    Priority        = number
+    Statement       = map(any)  # Allows for varied structures in Statement
+    OverrideAction  = map(any)  # Allows for varied structures in OverrideAction
+    VisibilityConfig = object({
+      SampledRequestsEnabled = bool
+      CloudWatchMetricsEnabled = bool
+      MetricName = string
+    })
+  }))
+}
+
+# Variable for regex rules
+variable "custom_regex_rules_json" {
+  description = "Regex rules for traffic filtering"
+  type = list(object({
+    Name            = string
+    Priority        = number
+    Statement       = object({
+      NotStatement = object({
+        Statement = object({
+          RegexMatchStatement = object({
+            RegexString      = string
+            FieldToMatch     = object({
+              UriPath = map(any)
+            })
+            TextTransformations = list(object({
+              Priority = number
+              Type     = string
+            }))
+          })
+        })
+      })
+    })
+    Action = object({
+      Block = map(any)  # Allows for flexibility if needed
+    })
+    VisibilityConfig = object({
+      SampledRequestsEnabled   = bool
+      CloudWatchMetricsEnabled = bool
+      MetricName               = string
+    })
+  }))
+}
+
+variable "git_pipeline_rules_json" {
+  description = "Git pipeline rules with AndStatement"
+  type = list(object({
+    Name      = string
+    Priority  = number
+    Statement = object({
+      AndStatement = object({
+        Statements = list(object({
+          LabelMatchStatement = optional(object({
+            Scope = string
+            Key   = string
+          }))
+          NotStatement = optional(object({
+            Statement = object({
+              RegexMatchStatement = object({
+                RegexString      = string
+                FieldToMatch     = object({
+                  UriPath = map(any)
+                })
+                TextTransformations = list(object({
+                  Priority = number
+                  Type     = string
+                }))
+              })
+            })
+          }))
+        }))
+      })
+    })
+    Action = object({
+      Block = map(any)
+    })
+    VisibilityConfig = object({
+      SampledRequestsEnabled   = bool
+      CloudWatchMetricsEnabled = bool
+      MetricName               = string
+    })
+  }))
+}
+

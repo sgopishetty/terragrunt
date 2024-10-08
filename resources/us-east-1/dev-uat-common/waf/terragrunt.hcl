@@ -28,11 +28,6 @@ inputs = {
       rule_id = "AWSManagedRulesAmazonIpReputationList"
     },
     {
-      name   = "AWSManagedRulesAnonymousIpList"
-      rule_id = "AWSManagedRulesAnonymousIpList"
-      priority = 3
-    },
-    {
       name   = "AWSManagedRulesCommonRuleSet"
       rule_id = "AWSManagedRulesCommonRuleSet"
     },
@@ -49,7 +44,117 @@ inputs = {
       rule_id = "AWSManagedRulesSQLiRuleSet"
     }
   ]
+  # Custom rule as JSON
+  custom_rules_json = [
+    {
+      "Name"     : "AWS-AWSManagedRulesAnonymousIpList",
+      "Priority" : 3,
+      "Statement" : {
+        "ManagedRuleGroupStatement" : {
+          "VendorName" : "AWS",
+          "Name"       : "AWSManagedRulesAnonymousIpList",
+          "RuleActionOverrides" : [
+            {
+              "Name" : "HostingProviderIPList",
+              "ActionToUse" : {
+                "Count" : {}
+              }
+            }
+          ]
+        }
+      },
+      "OverrideAction" : {
+        "None" : {}
+      },
+      "VisibilityConfig" : {
+        "SampledRequestsEnabled"   : true,
+        "CloudWatchMetricsEnabled" : true,
+        "MetricName"               : "AWS-AWSManagedRulesAnonymousIpList"
+      }
+    }
+  ]
+   # Regex rules
+  custom_regex_rules_json = [
+    {
+      Name     = "Allow-Application-traffic"
+      Priority = 0
+      Statement = {
+        NotStatement = {
+          Statement = {
+            RegexMatchStatement = {
+              RegexString = "\\/v1\\/events\\/ready-for-coding|\\/v1\\/healthcheck|\\/docs|\\/v1\\/docs\\/|\\/v1|\\/openapi.json"
+              FieldToMatch = {
+                UriPath = {}
+              }
+              TextTransformations = [
+                {
+                  Priority = 0
+                  Type     = "NONE"
+                }
+              ]
+            }
+          }
+        }
+      }
+      Action = {
+        Block = {}
+      }
+      VisibilityConfig = {
+        SampledRequestsEnabled   = true
+        CloudWatchMetricsEnabled = true
+        MetricName               = "Allow-Application-traffic"
+      }
+    }
+  ]
+
+git_pipeline_rules_json = [
+  {
+    Name     = "Allow-git-pipeline"
+    Priority = 4
+    Statement = {
+      AndStatement = {
+        Statements = [
+          {
+            LabelMatchStatement = {
+              Scope = "LABEL"
+              Key   = "awswaf:managed:aws:anonymous-ip-list:HostingProviderIPList"
+            }
+          },
+          {
+            NotStatement = {
+              Statement = {
+                RegexMatchStatement = {
+                  RegexString = "\\/v1\\/events\\/ready-for-coding|\\/v1\\/healthcheck"
+                  FieldToMatch = {
+                    UriPath = {}
+                  }
+                  TextTransformations = [
+                    {
+                      Priority = 0
+                      Type     = "NONE"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+    Action = {
+      Block = {}
+    }
+    VisibilityConfig = {
+      SampledRequestsEnabled   = true
+      CloudWatchMetricsEnabled = true
+      MetricName               = "Allow-git-pipeline"
+    }
+  }
+]
+
+
 }
+
 
 dependency "dev_service_arn" {
   config_path = "${get_terragrunt_dir()}/../../dev/ecs-service"
