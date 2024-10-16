@@ -132,56 +132,139 @@ inputs = {
     }
   ]
 
-  waf_bot_control_rules = [
-  {
-    Name     = "AWS-AWSManagedRulesBotControlRuleSet"
-    Priority = 9
-    Statement = {
-      ManagedRuleGroupStatement = {
-        VendorName = "AWS"
-        Name       = "AWSManagedRulesBotControlRuleSet"
-        ManagedRuleGroupConfigs = [
-          {
-            AWSManagedRulesBotControlRuleSet = {
-              InspectionLevel = "COMMON"
-            }
-          }
-        ]
-        RuleActionOverrides = [
-          {
-            Name       = "CategoryAdvertising"
-            ActionType = "Count"
-          },
-          {
-            Name       = "CategoryArchiver"
-            ActionType = "Count"
-          },
-          {
-            Name       = "CategoryContentFetcher"
-            ActionType = "Count"
-          },
-          {
-            Name       = "CategoryEmailClient"
-            ActionType = "Count"
-          },
-          {
-            Name       = "CategoryHttpLibrary"
-            ActionType = "Count"
-          },
-          {
-            Name       = "CategoryLinkChecker"
-            ActionType = "Count"
-          },
-          {
-            Name       = "CategoryMiscellaneous"
-            ActionType = "Count"
-          }
-        ]
-      }
-    }
-  }
-]
 
+waf_bot_control_rules = [
+  {
+  "Name": "AWS-AWSManagedRulesBotControlRuleSet",
+  "Priority": 9,
+  "Statement": {
+    "ManagedRuleGroupStatement": {
+      "VendorName": "AWS",
+      "Name": "AWSManagedRulesBotControlRuleSet",
+      "ManagedRuleGroupConfigs": [
+        {
+          "AWSManagedRulesBotControlRuleSet": {
+            "InspectionLevel": "COMMON"
+          }
+        }
+      ],
+      "RuleActionOverrides": [
+        {
+          "Name": "CategoryAdvertising",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryArchiver",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryContentFetcher",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryEmailClient",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryHttpLibrary",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryLinkChecker",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryMiscellaneous",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryMonitoring",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryScrapingFramework",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategorySearchEngine",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategorySecurity",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategorySeo",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategorySocialMedia",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "CategoryAI",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "SignalAutomatedBrowser",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "SignalKnownBotDataCenter",
+          "ActionToUse": {
+            "Count": {}
+          }
+        },
+        {
+          "Name": "SignalNonBrowserUserAgent",
+          "ActionToUse": {
+            "Count": {}
+          }
+        }
+      ]
+      }
+    },
+     "OverrideAction": {
+    "None": {}
+  },
+  "VisibilityConfig": {
+    "SampledRequestsEnabled": true,
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "AWS-AWSManagedRulesBotControlRuleSet"
+  }
+  }
+
+]
 
 
 
