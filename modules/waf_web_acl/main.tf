@@ -190,53 +190,14 @@ dynamic "rule" {
           }
         }
 
-        # Explicitly define rule_action_override blocks for each action override
-        rule_action_override {
-          name = "CategoryAdvertising"
-          action_to_use {
-            count {}
-          }
-        }
-
-        rule_action_override {
-          name = "CategoryArchiver"
-          action_to_use {
-            count {}
-          }
-        }
-
-        rule_action_override {
-          name = "CategoryContentFetcher"
-          action_to_use {
-            count {}
-          }
-        }
-
-        rule_action_override {
-          name = "CategoryEmailClient"
-          action_to_use {
-            count {}
-          }
-        }
-
-        rule_action_override {
-          name = "CategoryHttpLibrary"
-          action_to_use {
-            count {}
-          }
-        }
-
-        rule_action_override {
-          name = "CategoryLinkChecker"
-          action_to_use {
-            count {}
-          }
-        }
-
-        rule_action_override {
-          name = "CategoryMiscellaneous"
-          action_to_use {
-            count {}
+        # Correct placement of rule_action_override inside the managed_rule_group_statement
+        dynamic "rule_action_override" {
+          for_each = rule.value.Statement.ManagedRuleGroupStatement.RuleActionOverrides
+          content {
+            name = rule_action_override.value.Name
+            action_to_use {
+              count {}
+            }
           }
         }
       }
@@ -253,6 +214,7 @@ dynamic "rule" {
     }
   }
 }
+
 
 }
 
