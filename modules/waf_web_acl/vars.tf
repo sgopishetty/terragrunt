@@ -83,3 +83,27 @@ variable "git_waf_rules" {
     MetricName = string
   }))
 }
+
+variable "waf_bot_control_rules" {
+  description = "WAF Bot Control rule set"
+  type = list(object({
+    Name     = string
+    Priority = number
+    Statement = object({
+      ManagedRuleGroupStatement = object({
+        VendorName = string
+        Name       = string
+        ManagedRuleGroupConfigs = list(object({
+          AWSManagedRulesBotControlRuleSet = object({
+            InspectionLevel = string
+          })
+        }))
+        RuleActionOverrides = list(object({
+          Name       = string
+          ActionType = string
+        }))
+      })
+    }) 
+  }))
+}
+

@@ -132,6 +132,59 @@ inputs = {
     }
   ]
 
+  waf_bot_control_rules = [
+  {
+    Name     = "AWS-AWSManagedRulesBotControlRuleSet"
+    Priority = 9
+    Statement = {
+      ManagedRuleGroupStatement = {
+        VendorName = "AWS"
+        Name       = "AWSManagedRulesBotControlRuleSet"
+        ManagedRuleGroupConfigs = [
+          {
+            AWSManagedRulesBotControlRuleSet = {
+              InspectionLevel = "COMMON"
+            }
+          }
+        ]
+        RuleActionOverrides = [
+          {
+            Name       = "CategoryAdvertising"
+            ActionType = "Count"
+          },
+          {
+            Name       = "CategoryArchiver"
+            ActionType = "Count"
+          },
+          {
+            Name       = "CategoryContentFetcher"
+            ActionType = "Count"
+          },
+          {
+            Name       = "CategoryEmailClient"
+            ActionType = "Count"
+          },
+          {
+            Name       = "CategoryHttpLibrary"
+            ActionType = "Count"
+          },
+          {
+            Name       = "CategoryLinkChecker"
+            ActionType = "Count"
+          },
+          {
+            Name       = "CategoryMiscellaneous"
+            ActionType = "Count"
+          }
+        ]
+      }
+    }
+  }
+]
+
+
+
+
 }
 
 

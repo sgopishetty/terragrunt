@@ -172,6 +172,88 @@ dynamic "rule" {
       }
     }
   }
+
+dynamic "rule" {
+  for_each = var.waf_bot_control_rules
+  content {
+    name     = rule.value.Name
+    priority = rule.value.Priority
+
+    statement {
+      managed_rule_group_statement {
+        vendor_name = rule.value.Statement.ManagedRuleGroupStatement.VendorName
+        name        = rule.value.Statement.ManagedRuleGroupStatement.Name
+
+        managed_rule_group_configs {
+          aws_managed_rules_bot_control_rule_set {
+            inspection_level = lookup(rule.value.Statement.ManagedRuleGroupStatement.ManagedRuleGroupConfigs[0].AWSManagedRulesBotControlRuleSet, "InspectionLevel", "COMMON")
+          }
+        }
+
+        # Explicitly define rule_action_override blocks for each action override
+        rule_action_override {
+          name = "CategoryAdvertising"
+          action_to_use {
+            count {}
+          }
+        }
+
+        rule_action_override {
+          name = "CategoryArchiver"
+          action_to_use {
+            count {}
+          }
+        }
+
+        rule_action_override {
+          name = "CategoryContentFetcher"
+          action_to_use {
+            count {}
+          }
+        }
+
+        rule_action_override {
+          name = "CategoryEmailClient"
+          action_to_use {
+            count {}
+          }
+        }
+
+        rule_action_override {
+          name = "CategoryHttpLibrary"
+          action_to_use {
+            count {}
+          }
+        }
+
+        rule_action_override {
+          name = "CategoryLinkChecker"
+          action_to_use {
+            count {}
+          }
+        }
+
+        rule_action_override {
+          name = "CategoryMiscellaneous"
+          action_to_use {
+            count {}
+          }
+        }
+      }
+    }
+
+    action {
+      block {}
+    }
+
+    visibility_config {
+      sampled_requests_enabled    = true
+      cloudwatch_metrics_enabled  = true
+      metric_name                 = rule.value.Name
+    }
+  }
+}
+
 }
 
 
