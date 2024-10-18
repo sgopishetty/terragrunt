@@ -33,11 +33,11 @@ inputs:
   tf_version:
     description: "Terraform version to use"
     required: false
-    default: "1.2.0"
+    default: "1.9.8"
   tg_version:
     description: "Terragrunt version to use"
     required: false
-    default: "0.50.2"
+    default: "0.68.4"
   build_dir:
     description: "The build directory to save artifacts"
     required: false
