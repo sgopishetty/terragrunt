@@ -135,7 +135,7 @@ inputs = {
   waf_bot_control_rules = [
   {
   "Name": "AWS-AWSManagedRulesBotControlRuleSet",
-  "Priority": 9,
+  "Priority": 8,
   "Statement": {
     "ManagedRuleGroupStatement": {
       "VendorName": "AWS",
