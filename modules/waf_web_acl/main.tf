@@ -174,49 +174,6 @@ dynamic "rule" {
   }
 
 
-dynamic "rule" {
-    for_each = var.waf_bot_control_rules
-    content {
-      name     = rule.value["Name"]
-      priority = rule.value["Priority"]
-
-      statement {
-        managed_rule_group_statement {
-          vendor_name = rule.value["Statement"]["ManagedRuleGroupStatement"]["VendorName"]
-          name        = rule.value["Statement"]["ManagedRuleGroupStatement"]["Name"]
-          
-          managed_rule_group_configs {
-          aws_managed_rules_bot_control_rule_set {
-            inspection_level = lookup(rule.value.Statement.ManagedRuleGroupStatement.ManagedRuleGroupConfigs[0].AWSManagedRulesBotControlRuleSet, "InspectionLevel", "COMMON")
-            }
-          }
-          # RuleActionOverrides handling
-          dynamic "rule_action_override" {
-            for_each = lookup(rule.value["Statement"]["ManagedRuleGroupStatement"], "RuleActionOverrides", [])
-            content {
-              name = rule_action_override.value["Name"]
-
-              action_to_use {
-                count {} # Assuming 'Count' override as per your input
-              }
-            }
-          }
-        }
-      }
-
-      override_action {
-        none {}  # Can modify this if you want to override to 'block {}'
-      }
-
-      visibility_config {
-        cloudwatch_metrics_enabled = true
-        metric_name                = rule.value["VisibilityConfig"]["MetricName"]
-        sampled_requests_enabled   = rule.value["VisibilityConfig"]["SampledRequestsEnabled"]
-      }
-    }
-  }
-
-
 }
 
 
