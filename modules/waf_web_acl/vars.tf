@@ -84,3 +84,16 @@ variable "git_waf_rules" {
   }))
 }
 
+variable "waf_bot_control_rules" {
+  type = list(object({
+    Name            = string
+    Priority        = number
+    Statement       = map(any)  # Allows for varied structures in Statement
+    OverrideAction  = map(any)  # Allows for varied structures in OverrideAction
+    VisibilityConfig = object({
+      SampledRequestsEnabled = bool
+      CloudWatchMetricsEnabled = bool
+      MetricName = string
+    })
+  }))
+}
