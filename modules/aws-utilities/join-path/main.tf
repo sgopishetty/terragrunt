@@ -3,5 +3,5 @@ terraform {
 }
 
 module "os" {
-  source = "../operating-system"
+  source = "/github/workspace/modules/aws-utilities/operating-system"
 }
