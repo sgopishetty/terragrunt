@@ -79,7 +79,7 @@ runs:
     - name: Set execute permission for ECS deployment check script
       run: |
         ls -l
-        chmod +x ./modules/ecs/ecs-deploy-check-binaries/bin/check_ecs_service_deployment
+        chmod +x ./modules/ecs/ecs-deploy-check-binaries/bin/check-ecs-service-deployment
         chmod +x ./modules/ecs/ecs-deploy-check-binaries/bin/entrypoint.py
       shell: bash
 
