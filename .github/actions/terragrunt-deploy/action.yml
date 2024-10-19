@@ -87,7 +87,8 @@ runs:
 
     - name: Terragrunt Plan
       id: plan
-      uses: gruntwork-io/terragrunt-action@v2
+      #uses: gruntwork-io/terragrunt-action@v2
+      uses: ./.github/actions/terragrunt-python
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
       with:
