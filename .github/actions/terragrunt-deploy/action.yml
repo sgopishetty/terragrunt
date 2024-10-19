@@ -117,4 +117,4 @@ runs:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
-        tg_command: "run-all apply"          #destroy --terragrunt-exclude-dir ./s3/"
+        tg_command: "run-all destroy --terragrunt-exclude-dir ./s3/"
