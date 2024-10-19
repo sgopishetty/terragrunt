@@ -75,6 +75,15 @@ runs:
       with:
         repository: ${{ inputs.git_project }}
         ref: ${{ inputs.git_ref }}
+    
+    # Install Python step
+    - name: Install Python
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3 python3-pip
+        python3 --version
+        pip3 --version
 
     - name: Terragrunt Init
       uses: gruntwork-io/terragrunt-action@v2
