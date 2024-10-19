@@ -101,6 +101,10 @@ runs:
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
         tg_command: "run-all plan -out=tf.plan"
+    
+    - name: Set execute permission for ECS deployment check script
+      run: |
+        ls -l
       
     - name: Terragrunt Apply
       #uses: gruntwork-io/terragrunt-action@v2
