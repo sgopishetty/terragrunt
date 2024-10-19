@@ -79,7 +79,7 @@ runs:
     - name: Set execute permission for ECS deployment check script
       run: |
         ls -l
-        find ./github/workspace/modules/ecs/ecs-deploy-check-binaries/bin/check-ecs-service-deployment/ -type f -name "*.py" -exec chmod +x {} \;
+        find ./modules/ecs/ecs-deploy-check-binaries/check_ecs_service_deployment/ -type f -name "*.py" -exec chmod +x {} \;
       shell: bash
 
     - name: Terragrunt Init
