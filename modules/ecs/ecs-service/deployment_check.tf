@@ -79,6 +79,6 @@ EOF
 # Build the path to the deployment check binary
 module "ecs_deployment_check_bin" {
   # source = "git::git@github.com:gruntwork-io/terraform-aws-utilities.git//modules/join-path?ref=v0.9.4"
-  source = "../../aws-utilities/join-path"
+  source = "/github/workspace/modules/aws-utilities/join-path"
   path_parts = [path.module, "..", "ecs-deploy-check-binaries", "bin", "check-ecs-service-deployment"]
 }
