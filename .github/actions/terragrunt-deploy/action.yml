@@ -112,4 +112,8 @@ runs:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
-        tg_command: "run-all apply"  #destroy --terragrunt-exclude-dir ./s3/"
+        #tg_command: "run-all apply"          #destroy --terragrunt-exclude-dir ./s3/"
+      run: |
+        apt-get update && apt-get install -y python3 python3-pip
+        python3 --version && pip3 --version
+        terragrunt run-all apply
