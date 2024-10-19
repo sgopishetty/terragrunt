@@ -22,4 +22,6 @@ RUN apt-get update \
 
 COPY ["./src/main.sh", "/action/main.sh"]
 
+RUN chmod +x /action/main.sh
+
 ENTRYPOINT ["/action/main.sh"]
