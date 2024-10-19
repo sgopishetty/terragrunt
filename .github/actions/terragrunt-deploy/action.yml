@@ -105,6 +105,7 @@ runs:
     - name: Set execute permission for ECS deployment check script
       run: |
         ls -l
+      shell: bash
       
     - name: Terragrunt Apply
       #uses: gruntwork-io/terragrunt-action@v2
