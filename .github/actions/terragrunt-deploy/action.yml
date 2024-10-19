@@ -79,7 +79,8 @@ runs:
     - name: Set execute permission for ECS deployment check script
       run: |
         ls -l
-        find ./modules/ecs/ecs-deploy-check-binaries/check_ecs_service_deployment/ -type f -name "*.py" -exec chmod +x {} \;
+        chmod +x ./modules/ecs/ecs-deploy-check-binaries/bin/check_ecs_service_deployment
+        chmod +x ./modules/ecs/ecs-deploy-check-binaries/bin/entrypoint.py
       shell: bash
 
     - name: Terragrunt Init
