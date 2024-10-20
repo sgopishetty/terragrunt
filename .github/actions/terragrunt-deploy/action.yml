@@ -97,6 +97,12 @@ runs:
 
     - name: Terragrunt Init
       uses: gruntwork-io/terragrunt-action@v2
+      env:
+        INPUT_PRE_EXEC_1: |
+          git config --global url."https://user:${{ env.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+          git config --global url."https://user:${{ env.GITHUB_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
+        INPUT_PRE_EXEC_2: |
+          git config --global --list
       with:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
