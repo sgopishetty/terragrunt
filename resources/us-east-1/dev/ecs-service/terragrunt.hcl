@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../../modules/ecs/ecs-fargate-service-with-alb"
+  source = "${include.envcommon.locals.base_source_url}"
 }
 
 include "root" {
