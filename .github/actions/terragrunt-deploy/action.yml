@@ -70,11 +70,16 @@ runs:
         aws configure list
       shell: bash
     
-    # Add the step for using the PAT_TOKEN
-    - name: Set up GitHub Token
+    - name: Retrieve Secrets from AWS Secrets Manager
       run: |
-        echo "GITHUB_PAT_TOKEN=${{ secrets.PAT_TOKEN }}" >> "$GITHUB_ENV"
-        echo "::add-mask::${{ secrets.PAT_TOKEN }}"
+        export GITHUB_TOKEN=$( \
+            aws secretsmanager get-secret-value --secret-id \
+            'github_token' \
+            --query SecretString \
+            --output text \
+        )
+        echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> "$GITHUB_ENV"
+        echo "::add-mask::$GITHUB_TOKEN"
       shell: bash
 
     - name: Checkout - ${{ inputs.git_project }}@${{ inputs.git_ref }}
