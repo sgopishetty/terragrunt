@@ -7,5 +7,4 @@ def hello_world():
     return 'Hello, World! 1.3'
 
 if __name__ == '__main__':
-    sys.exit(1) #Failure testing
     app.run(host='0.0.0.0', port=80)
