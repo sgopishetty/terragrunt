@@ -33,11 +33,11 @@ inputs:
   tf_version:
     description: "Terraform version to use"
     required: false
-    default: "1.2.0"
+    default: "1.9.8"
   tg_version:
     description: "Terragrunt version to use"
     required: false
-    default: "0.50.2"
+    default: "0.68.4"
   build_dir:
     description: "The build directory to save artifacts"
     required: false
@@ -69,6 +69,18 @@ runs:
         aws sts get-caller-identity
         aws configure list
       shell: bash
+    
+    - name: Retrieve Secrets from AWS Secrets Manager
+      run: |
+        export GITHUB_TOKEN=$( \
+            aws secretsmanager get-secret-value --secret-id \
+            'github_token' \
+            --query SecretString \
+            --output text \
+        )
+        echo "GITHUB_TOKEN=${GITHUB_TOKEN}" >> "$GITHUB_ENV"
+        echo "::add-mask::$GITHUB_TOKEN"
+      shell: bash
 
     - name: Checkout - ${{ inputs.git_project }}@${{ inputs.git_ref }}
       uses: actions/checkout@v4
@@ -76,8 +88,21 @@ runs:
         repository: ${{ inputs.git_project }}
         ref: ${{ inputs.git_ref }}
 
+    - name: Set execute permission for ECS deployment check script
+      run: |
+        ls -l
+        chmod +x ./modules/ecs/ecs-deploy-check-binaries/bin/check-ecs-service-deployment
+        chmod +x ./modules/ecs/ecs-deploy-check-binaries/bin/entrypoint.py
+      shell: bash
+
     - name: Terragrunt Init
       uses: gruntwork-io/terragrunt-action@v2
+      env:
+        INPUT_PRE_EXEC_1: |
+          git config --global url."https://user:${{ env.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+          git config --global url."https://user:${{ env.GITHUB_TOKEN }}@github.com".insteadOf "ssh://git@github.com"
+        INPUT_PRE_EXEC_2: |
+          git config --global --list
       with:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
@@ -86,7 +111,8 @@ runs:
 
     - name: Terragrunt Plan
       id: plan
-      uses: gruntwork-io/terragrunt-action@v2
+      #uses: gruntwork-io/terragrunt-action@v2
+      uses: ./.github/actions/terragrunt-python
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
       with:
@@ -94,13 +120,19 @@ runs:
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
         tg_command: "run-all plan -out=tf.plan"
+    
+    - name: Set execute permission for ECS deployment check script
+      run: |
+        ls -l
+      shell: bash
       
     - name: Terragrunt Apply
-      uses: gruntwork-io/terragrunt-action@v2
+      #uses: gruntwork-io/terragrunt-action@v2
+      uses: ./.github/actions/terragrunt-python
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
       with:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
-        tg_command: "run-all destroy"
+        tg_command: "run-all destroy --terragrunt-exclude-dir ./s3/"

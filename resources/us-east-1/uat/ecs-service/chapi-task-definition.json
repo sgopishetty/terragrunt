@@ -1,0 +1,22 @@
+[
+  {
+    "name": "uat-chapi-ecs-service",
+    "image": "010526272542.dkr.ecr.us-east-1.amazonaws.com/flaskapp:61b8f901e6fd3cb704f8323afd375de132edf0c5",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/aws/ecs/uat-chapi-ecs-service",
+        "awslogs-region": "us-east-1",
+        "awslogs-create-group": "true",
+        "awslogs-stream-prefix": "uat-chapi-ecs-service"
+      }
+    },
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "hostPort": 80,
+        "protocol": "tcp"
+      }
+    ]
+  }
+]

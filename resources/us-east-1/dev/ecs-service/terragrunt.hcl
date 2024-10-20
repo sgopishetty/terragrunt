@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../../modules/ecs/ecs-fargate-service-with-alb"
+  source = "${include.envcommon.locals.base_source_url}"
 }
 
 include "root" {
@@ -90,10 +90,11 @@ inputs = {
   #  }
   #]
   #ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+
   # ALB Access logs
-  enable_alb_access_logs = false
-  // alb_access_logs_s3_bucket_name   = dependency.alb_access_logs.outputs.primary_bucket_name
-  // custom_alb_access_logs_s3_prefix = "${local.team_name}-${local.name_prefix}-api-${local.env}"
+  enable_alb_access_logs = true
+  alb_access_logs_s3_bucket_name   = dependency.alb_logs_bucket.outputs.primary_bucket_name
+  custom_alb_access_logs_s3_prefix = "logs"
 
   # Security group
   security_group_name = "chapi-ecs-sg-${local.aws_region}-${local.env}"
@@ -120,5 +121,13 @@ dependency "subnets" {
   mock_outputs = {
     private_subnets = ["known-after-apply"],
     public_subnets = ["known-after-apply"]
+  }
+}
+
+dependency "alb_logs_bucket" {
+  config_path = "${get_terragrunt_dir()}/../s3"
+
+  mock_outputs = {
+    primary_bucket_name = ["known-after-apply"]
   }
 }
