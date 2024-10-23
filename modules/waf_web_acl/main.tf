@@ -225,7 +225,7 @@ resource "aws_cloudwatch_log_group" "waf_log_group" {
 }
 
 # Associate the log group with your WAF Web ACL
-resource "aws_wafv2_logging_configuration" "waf_logging" {
+resource "aws_wafv2_web_acl_logging_configuration" "waf_logging" {
   resource_arn = aws_wafv2_web_acl.this.arn
   
   log_destination_configs = [
