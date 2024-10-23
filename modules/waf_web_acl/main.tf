@@ -235,7 +235,7 @@ resource "aws_wafv2_web_acl_logging_configuration" "waf_logging" {
   # Optional: Redacted fields if you want to avoid logging sensitive data
   redacted_fields {
     single_header {
-      name = "Authorization"
+      name = "authorization"
     }
   }
 }
