@@ -218,6 +218,27 @@ dynamic "rule" {
 
 }
 
+# Create a CloudWatch Log Group
+resource "aws_cloudwatch_log_group" "waf_log_group" {
+  name = "/aws/waf/${var.name}-loggroup"
+  retention_in_days = 30  # Optional: Adjust retention as necessary
+}
+
+# Associate the log group with your WAF Web ACL
+resource "aws_wafv2_logging_configuration" "waf_logging" {
+  resource_arn = aws_wafv2_web_acl.this.arn
+  
+  log_destination_configs = [
+    aws_cloudwatch_log_group.waf_log_group.arn
+  ]
+
+  # Optional: Redacted fields if you want to avoid logging sensitive data
+  redacted_fields {
+    single_header {
+      name = "Authorization"
+    }
+  }
+}
 
 # Association between WAF and ALB
 resource "aws_wafv2_web_acl_association" "this" {
