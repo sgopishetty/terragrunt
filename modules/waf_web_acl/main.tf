@@ -220,7 +220,7 @@ dynamic "rule" {
 
 # Create a CloudWatch Log Group
 resource "aws_cloudwatch_log_group" "waf_log_group" {
-  name = "/aws/waf/${var.name}-loggroup"
+  name = "${var.name}_loggroup"
   retention_in_days = 30  # Optional: Adjust retention as necessary
 }
 
