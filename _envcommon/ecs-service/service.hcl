@@ -1,4 +1,5 @@
 locals {
+  base_source_url = "git@github.com:sgopishetty/modules.git//ecs/ecs-fargate-service-with-alb"
   # Automatically load environment-level variables
   environment_vars = read_terragrunt_config(find_in_parent_folders("env.hcl"))
 
