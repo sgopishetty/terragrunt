@@ -94,7 +94,7 @@ locals {
 }
 
 resource "aws_ecs_service" "service_with_auto_scaling" {
-  count = var.use_auto_scaling && var.deployment_controller != "CODE_DEPLOY" ? 1 : 0
+  count = var.use_auto_scaling && var.deployment_controller == "CODE_DEPLOY" ? 1 : 0
   depends_on = [
     aws_iam_role_policy.ecs_service_policy,
     null_resource.dependency_getter,
@@ -174,14 +174,13 @@ resource "aws_ecs_service" "service_with_auto_scaling" {
   }
 
   # NOTE: resources/locals here are defined in elb.tf
-  dynamic "load_balancer" {
-    for_each = aws_lb_target_group.ecs_service
-    content {
-      target_group_arn = load_balancer.value.arn
-      container_name   = var.elb_target_groups[load_balancer.key].container_name
-      container_port   = var.elb_target_groups[load_balancer.key].container_port
-    }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_service[local.blue_target_group].arn
+    container_name   = var.elb_target_groups[local.blue_target_group].container_name
+    container_port   = var.elb_target_groups[local.blue_target_group].container_port
   }
+
+  
 
   dynamic "load_balancer" {
     for_each = var.clb_name == null ? [] : [var.clb_name]
@@ -215,7 +214,7 @@ resource "aws_ecs_service" "service_with_auto_scaling" {
 }
 
 resource "aws_ecs_service" "service_with_auto_scaling_and_code_deploy_blue_green" {
-  count = var.use_auto_scaling && var.deployment_controller == "CODE_DEPLOY" ? 1 : 0
+  count = var.use_auto_scaling && var.deployment_controller != "CODE_DEPLOY" ? 1 : 0
   depends_on = [
     aws_iam_role_policy.ecs_service_policy,
     null_resource.dependency_getter,
