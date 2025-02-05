@@ -174,10 +174,13 @@ resource "aws_ecs_service" "service_with_auto_scaling" {
   }
 
   # NOTE: resources/locals here are defined in elb.tf
-  load_balancer {
-    target_group_arn = aws_lb_target_group.ecs_service[local.blue_target_group].arn
-    container_name   = var.elb_target_groups[local.blue_target_group].container_name
-    container_port   = var.elb_target_groups[local.blue_target_group].container_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_target_group.ecs_service
+    content {
+      target_group_arn = load_balancer.value.arn
+      container_name   = var.elb_target_groups[load_balancer.key].container_name
+      container_port   = var.elb_target_groups[load_balancer.key].container_port
+    }
   }
 
   
