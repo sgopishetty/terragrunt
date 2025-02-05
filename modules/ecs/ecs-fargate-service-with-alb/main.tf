@@ -87,8 +87,8 @@ module "fargate_service" {
       container_port        = var.container_port
       protocol              = var.alb_protocol
       health_check_protocol = var.health_check_protocol
+      health_check_port     = var.green_health_check_port
     }
-    
   }
   elb_target_group_vpc_id = var.vpc_id
   elb_slow_start          = 30

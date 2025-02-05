@@ -106,6 +106,19 @@ resource "aws_lb_target_group" "ecs_service" {
       cookie_duration = var.alb_sticky_session_cookie_duration
     }
   }
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes = [
+      # Ignore changes to health check protocol to avoid recreation
+      port,
+      protocol,
+      health_check.protocol,
+      health_check.port,
+      health_check.interval,
+      health_check.timeout
+    ]
+  }
 }
 
 
