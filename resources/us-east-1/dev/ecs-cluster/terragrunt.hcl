@@ -13,6 +13,6 @@ include "envcommon" {
 }
 
 inputs = {
-  vpc_id               = "vpc-04706f24c5d6cadc6"
+  vpc_id               = "vpc-05702d6dd207b8cb4"
 
 }

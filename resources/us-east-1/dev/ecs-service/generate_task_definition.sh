@@ -9,7 +9,7 @@ cat <<EOF > ${OUTPUT_FILE}
 [
   {
     "name": "${NAME}",
-    "image": "010526272542.dkr.ecr.us-east-1.amazonaws.com/flaskapp:${COMMIT_SHA}",
+    "image": "976193232529.dkr.ecr.us-east-1.amazonaws.com/flaskapp:${COMMIT_SHA}",
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {

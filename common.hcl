@@ -10,5 +10,5 @@ locals {
 
   }
 
-  remote_state_prefix = "epi-stg-${local.team_name}"
+  remote_state_prefix = "epi-new-${local.team_name}"
 }

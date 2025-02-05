@@ -17,7 +17,7 @@ inputs:
   aws_role_arn:
     description: "The AWS role to assume"
     required: false
-    default: "arn:aws:iam::010526272542:role/github-ci"
+    default: "arn:aws:iam::976193232529:role/github-ci"
   aws_role_duration_seconds:
     description: "The AWS role duration in seconds"
     required: false

@@ -73,7 +73,7 @@ inputs = {
   alb_protocol          = "HTTP"
   health_check_protocol = "HTTP"
   health_check_path     = "/"
-  vpc_id                = "vpc-06a51eb1b61b77c3f"
+  vpc_id                = "vpc-05702d6dd207b8cb4"
 
   # ALB configuration
   alb_name            = "chapi-ecs-test"
