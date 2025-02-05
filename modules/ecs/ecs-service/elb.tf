@@ -113,10 +113,8 @@ resource "aws_lb_target_group" "ecs_service" {
       # Ignore changes to health check protocol to avoid recreation
       port,
       protocol,
-      health_check.protocol,
-      health_check.port,
-      health_check.interval,
-      health_check.timeout
+      health_check.protocol[0],
+      health_check.port[0]
     ]
   }
 }
