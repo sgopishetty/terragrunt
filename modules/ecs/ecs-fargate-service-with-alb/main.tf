@@ -45,7 +45,7 @@ module "fargate_service" {
   # When using these modules in your own templates, you will need to use a Git URL with a ref attribute that pins you
   # to a specific version of the modules, such as the following example:
   # source = "git::git@github.com:gruntwork-io/terraform-aws-ecs.git//modules/ecs-service?ref=v1.0.8"
-  source = "/github/workspace/modules/ecs/ecs-service"
+  source = "/mnt/c/Users/WoW/Documents/abhi/terragrunt/modules/ecs/ecs-service"
 
   service_name    = var.service_name
   ecs_cluster_arn = var.ecs_cluster_arn
@@ -82,6 +82,13 @@ module "fargate_service" {
   # Configure ALB
   elb_target_groups = {
     alb = {
+      name                  = var.service_name
+      container_name        = var.container_name
+      container_port        = var.container_port
+      protocol              = var.alb_protocol
+      health_check_protocol = var.health_check_protocol
+    }
+    green = {
       name                  = var.service_name
       container_name        = var.container_name
       container_port        = var.container_port
@@ -164,7 +171,7 @@ resource "aws_security_group_rule" "allow_inbound_on_container_port" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "alb" {
-  source = "/github/workspace/modules/aws-load-balancer/alb"
+  source = "/mnt/c/Users/WoW/Documents/abhi/terragrunt/modules/aws-load-balancer/alb"
 
   alb_name        = var.alb_name
   is_internal_alb = var.is_internal_alb
@@ -421,6 +428,60 @@ resource "aws_appautoscaling_policy" "scale_in" {
     step_adjustment {
       metric_interval_upper_bound = 0
       scaling_adjustment          = -1
+    }
+  }
+}
+
+resource "aws_codedeploy_app" "ecs_type" {
+  compute_platform = "ECS"
+  name             = var.service_name
+}
+
+resource "aws_codedeploy_deployment_group" "ecs_blue_green" {
+  app_name               = aws_codedeploy_app.ecs_type.name
+  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+  deployment_group_name  = var.service_name
+  service_role_arn       = "arn:aws:iam::976193232529:role/CodeDeployRole"
+
+  auto_rollback_configuration {
+    enabled = true
+    events  = ["DEPLOYMENT_FAILURE"]
+  }
+
+  blue_green_deployment_config {
+    deployment_ready_option {
+      action_on_timeout = "CONTINUE_DEPLOYMENT"
+    }
+
+    terminate_blue_instances_on_deployment_success {
+      action                           = "TERMINATE"
+      termination_wait_time_in_minutes = 5
+    }
+  }
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "BLUE_GREEN"
+  }
+
+  ecs_service {
+    cluster_name = var.ecs_cluster_name
+    service_name = var.service_name
+  }
+
+  load_balancer_info {
+    target_group_pair_info {
+      prod_traffic_route {
+        listener_arns = [module.alb.http_listener_arns[80]]
+      }
+
+      target_group {
+        name = module.fargate_service.target_group_arns["alb"]
+      }
+
+      target_group {
+        name = module.fargate_service.target_group_arns["green"]
+      }
     }
   }
 }
