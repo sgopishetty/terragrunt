@@ -82,7 +82,7 @@ module "fargate_service" {
   # Configure ALB
   elb_target_groups = {
     alb = {
-      name                  = "new-${var.service_name}"
+      name                  = var.service_name
       container_name        = var.container_name
       container_port        = var.container_port
       protocol              = var.alb_protocol
