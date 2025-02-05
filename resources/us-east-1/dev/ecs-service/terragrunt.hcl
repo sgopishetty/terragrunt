@@ -69,9 +69,9 @@ inputs = {
 
   # ALB information
   container_name        = "${local.service}"
-  container_port        = "80"
-  alb_protocol          = "HTTP"
-  health_check_protocol = "HTTP"
+  container_port        = "443"
+  alb_protocol          = "HTTPS"
+  health_check_protocol = "HTTPS"
   health_check_path     = "/"
   vpc_id                = "vpc-05702d6dd207b8cb4"
 
@@ -97,8 +97,8 @@ inputs = {
 
   # Security group
   security_group_name = "chapi-ecs-sg-${local.aws_region}-${local.env}"
-  from_port           = 80
-  to_port             = 80
+  from_port           = 443
+  to_port             = 443
 
   # Cloudwatch alarms
   cloudwatch_log_group_name = "/ecs/aws/chapi-ecs-${local.aws_region}-${local.env}"
