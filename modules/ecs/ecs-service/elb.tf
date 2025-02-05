@@ -109,13 +109,6 @@ resource "aws_lb_target_group" "ecs_service" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [
-      # Ignore changes to health check protocol to avoid recreation
-      port,
-      protocol,
-      health_check[0].protocol,
-      health_check[0].port
-    ]
   }
 }
 
