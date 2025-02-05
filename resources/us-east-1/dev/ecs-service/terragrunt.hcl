@@ -97,8 +97,8 @@ inputs = {
 
   # Security group
   security_group_name = "chapi-ecs-sg-${local.aws_region}-${local.env}"
-  from_port           = 443
-  to_port             = 443
+  from_port           = 80
+  to_port             = 80
 
   # Cloudwatch alarms
   cloudwatch_log_group_name = "/ecs/aws/chapi-ecs-${local.aws_region}-${local.env}"
