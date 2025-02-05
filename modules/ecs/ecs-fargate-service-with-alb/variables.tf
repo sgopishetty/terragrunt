@@ -40,6 +40,16 @@ variable "container_port" {
   default = 80
 }
 
+variable "green_container_port" {
+  type    = number
+  default = 443
+}
+
+variable "green_health_check_port" {
+  type    = number
+  default = 443
+}
+
 variable "from_port" {
   description = "The port on which the host and container listens on for HTTP requests"
   type        = number
@@ -238,9 +248,19 @@ variable "alb_protocol" {
   default = "HTTP"
 }
 
+variable "green_alb_protocol" {
+  type    = string
+  default = "HTTPS"
+}
+
 variable "health_check_protocol" {
   type    = string
   default = "HTTP"
+}
+
+variable "green_health_check_protocol" {
+  type    = string
+  default = "HTTPS"
 }
 
 variable "alb_name" {

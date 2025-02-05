@@ -89,11 +89,12 @@ module "fargate_service" {
       health_check_protocol = var.health_check_protocol
     }
     green = {
-      name                  = var.service_name
+      name                  = "green-${var.service_name}"
       container_name        = var.container_name
-      container_port        = var.container_port
-      protocol              = var.alb_protocol
+      container_port        = var.green_container_port
+      protocol              = var.green_alb_protocol
       health_check_protocol = var.health_check_protocol
+      health_check_port     = var.green_health_check_port
     }
   }
   elb_target_group_vpc_id = var.vpc_id
