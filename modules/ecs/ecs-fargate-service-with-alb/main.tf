@@ -82,12 +82,19 @@ module "fargate_service" {
   # Configure ALB
   elb_target_groups = {
     alb = {
-      name                  = "new-${var.service_name}"
+      name                  = "${var.service_name}"
       container_name        = var.container_name
       container_port        = var.container_port
       protocol              = var.alb_protocol
       health_check_protocol = var.health_check_protocol
-      health_check_port     = var.green_health_check_port
+      
+    }
+    green = {
+      name                  = "green-${var.service_name}"
+      container_name        = var.container_name
+      container_port        = var.container_port
+      protocol              = var.alb_protocol
+      health_check_protocol = var.health_check_protocol      
     }
   }
   elb_target_group_vpc_id = var.vpc_id
@@ -242,7 +249,19 @@ resource "aws_alb_listener_rule" "path_based_example" {
 
   action {
     type             = "forward"
-    target_group_arn = module.fargate_service.target_group_arns["alb"]
+
+    forward {
+      target_group {
+        arn    = module.fargate_service.target_group_arns["green"]
+        weight = 80
+      }
+
+      target_group {
+        arn    = module.fargate_service.target_group_arns["alb"]
+        weight = 20
+      }
+    }
+    #target_group_arn = module.fargate_service.target_group_arns["alb"]
   }
 
   condition {
