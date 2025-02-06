@@ -90,11 +90,12 @@ module "fargate_service" {
       
     }
     green = {
-      name                  = "green-${var.service_name}"
+      name                  = "green-${var.service_name}-https"
       container_name        = var.container_name
-      container_port        = var.container_port
-      protocol              = var.alb_protocol
-      health_check_protocol = var.health_check_protocol      
+      container_port        = var.green_container_port
+      protocol              = var.green_alb_protocol
+      health_check_protocol = var.green_health_check_protocol
+      health_check_port     = var.health_check_port     
     }
   }
   elb_target_group_vpc_id = var.vpc_id
@@ -161,6 +162,16 @@ resource "aws_security_group_rule" "allow_inbound_on_container_port" {
   type              = "ingress"
   from_port         = var.from_port
   to_port           = var.to_port
+  protocol          = "tcp"
+  #  cidr_blocks              = ["0.0.0.0/0"]
+  source_security_group_id = module.alb.alb_security_group_id
+}
+
+resource "aws_security_group_rule" "allow_inbound_on_container_port" {
+  security_group_id = aws_security_group.ecs_task_security_group.id
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
   protocol          = "tcp"
   #  cidr_blocks              = ["0.0.0.0/0"]
   source_security_group_id = module.alb.alb_security_group_id

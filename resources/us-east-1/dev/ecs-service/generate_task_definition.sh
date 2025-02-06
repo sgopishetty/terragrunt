@@ -21,8 +21,8 @@ cat <<EOF > ${OUTPUT_FILE}
     },
     "portMappings": [
       {
-        "containerPort": 80,
-        "hostPort": 80,
+        "containerPort": 443,
+        "hostPort": 443,
         "protocol": "tcp"
       }
     ]
