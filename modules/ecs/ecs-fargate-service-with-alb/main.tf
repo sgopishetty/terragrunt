@@ -95,7 +95,7 @@ module "fargate_service" {
       container_port        = var.green_container_port
       protocol              = var.green_alb_protocol
       health_check_protocol = var.green_health_check_protocol
-      health_check_port     = var.health_check_port     
+      health_check_port     = var.green_health_check_port     
     }
   }
   elb_target_group_vpc_id = var.vpc_id
