@@ -167,7 +167,7 @@ resource "aws_security_group_rule" "allow_inbound_on_container_port" {
   source_security_group_id = module.alb.alb_security_group_id
 }
 
-resource "aws_security_group_rule" "allow_inbound_on_container_port" {
+resource "aws_security_group_rule" "allow_inbound_on_container_port_https" {
   security_group_id = aws_security_group.ecs_task_security_group.id
   type              = "ingress"
   from_port         = 443
