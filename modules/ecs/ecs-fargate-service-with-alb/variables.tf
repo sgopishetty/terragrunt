@@ -263,6 +263,11 @@ variable "green_health_check_protocol" {
   default = "HTTPS"
 }
 
+variable "green_container_name" {
+  type = string
+  default = "green-chapi-ecs-service"
+}
+
 variable "alb_name" {
   type = string
 }

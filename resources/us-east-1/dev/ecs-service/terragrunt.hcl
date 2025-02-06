@@ -68,7 +68,8 @@ inputs = {
   desired_number_of_tasks = "2"
 
   # ALB information
-  container_name        = "${local.service}"
+  green_container_name  = "${local.service}"
+  container_name        = "${local.service}-old"
   container_port        = "80"
   alb_protocol          = "HTTP"
   health_check_protocol = "HTTP"
