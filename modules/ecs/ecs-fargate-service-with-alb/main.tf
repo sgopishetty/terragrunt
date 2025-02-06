@@ -90,7 +90,7 @@ module "fargate_service" {
       
     }
     green = {
-      name                  = "green-${var.service_name}-https"
+      name                  = "${var.service_name}-https"
       container_name        = var.container_name
       container_port        = var.green_container_port
       protocol              = var.green_alb_protocol
