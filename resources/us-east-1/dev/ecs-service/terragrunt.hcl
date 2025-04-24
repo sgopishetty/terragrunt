@@ -69,10 +69,10 @@ inputs = {
 
   # ALB information
   green_container_name  = "${local.service}"
-  container_name        = "${local.service}-old"
-  container_port        = "80"
-  alb_protocol          = "HTTP"
-  health_check_protocol = "HTTP"
+  container_name        = "${local.service}"
+  container_port        = "443"
+  alb_protocol          = "HTTPS"
+  health_check_protocol = "HTTPS"
   health_check_path     = "/"
   vpc_id                = "vpc-05702d6dd207b8cb4"
 
