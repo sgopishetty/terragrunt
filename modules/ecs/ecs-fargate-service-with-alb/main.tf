@@ -533,7 +533,7 @@ resource "local_file" "appspec" {
       - TargetService:
           Type: AWS::ECS::Service
           Properties:
-            TaskDefinition: "${module.fargate_service.task_definition_arn}"
+            TaskDefinition: "${module.fargate_service.aws_ecs_task_definition_arn}"
             LoadBalancerInfo:
               ContainerName: "${var.container_name}"
               ContainerPort: "${var.container_port}"
