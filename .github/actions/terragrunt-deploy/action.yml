@@ -120,12 +120,10 @@ runs:
     
     - name: Create CodeDeploy Deployment
       run: |
-        appspec_base64=$(base64 < "${{ inputs.codedeploy_appspec_path }}" | tr -d '\n')
-        
-        aws deploy create-deployment \
-          --application-name "${{ inputs.code_deploy_app_name }}" \
-          --deployment-group-name "${{ inputs.code_deploy_group_name }}" \
-          --revision "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":\"${appspec_base64}\"}}" \
-          --region "${{ inputs.aws_region }}"
+        ls -l
+        cd ./github/workspace/modules/ecs/ecs-fargate-service-with-alb/
+        pwd
+        ls -l
+        cat appspec.yaml
       shell: bash
       
