@@ -493,9 +493,6 @@ resource "aws_codedeploy_deployment_group" "ecs_dg" {
       action_on_timeout = "CONTINUE_DEPLOYMENT"
     }
 
-    green_fleet_provisioning_option {
-      action = "DISCOVER_EXISTING"
-    }
   }
 
   deployment_style {
