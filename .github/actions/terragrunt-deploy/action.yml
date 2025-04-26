@@ -118,16 +118,8 @@ runs:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
-        tg_command: "run-all apply"
+        tg_command: "run-all destroy"
     
-    - name: Get appspec.yaml content
-      uses: gruntwork-io/terragrunt-action@v2
-      id: tg_output
-      with:
-        tf_version: ${{ inputs.tf_version }}
-        tg_version: ${{ inputs.tg_version }}
-        tg_dir: "./resources/us-east-1/dev/ecs-service"
-        tg_command: "output -json"
       
     - name: Create CodeDeploy Deployment
       run: |
