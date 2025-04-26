@@ -130,6 +130,7 @@ runs:
     - name: Save appspec.yaml
       run: |
         echo '${{ fromJson(steps.tg_output.outputs.stdout).appspec_yaml_content }}' > appspec.yaml
+      shell: bash
 
     - name: Create CodeDeploy Deployment
       run: |
@@ -139,3 +140,4 @@ runs:
           --deployment-group-name ${{ inputs.code_deploy_group_name }} \
           --revision "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":\"$(base64 -w 0 appspec.yaml)\"}}" \
           --region ${{ inputs.aws_region }}
+      shell: bash
