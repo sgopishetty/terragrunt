@@ -545,8 +545,8 @@ resource "null_resource" "codedeploy_deployment" {
   provisioner "local-exec" {
     command = <<EOT
 aws deploy create-deployment \
-  --application-name ${aws_codedeploy_app.ecs.name} \
-  --deployment-group-name ${aws_codedeploy_deployment_group.ecs_dg.name} \
+  --application-name ${aws_codedeploy_app.ecs_app.name} \
+  --deployment-group-name ${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name} \
   --revision '{"revisionType":"AppSpecContent","appSpecContent":{"content":"'"$(cat ${path.module}/appspec.yaml | base64)"'"}}' \
   --region ${var.aws_region}
 EOT
