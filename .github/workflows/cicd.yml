@@ -65,6 +65,8 @@ jobs:
           git_ref: ${{ github.ref }}
           terragrunt_dir: ./resources/us-east-1/dev
           commit_id: ${{ needs.determine_commit_sha.outputs.COMMIT_SHA }}
+          code_deploy_app_name: ecs-codedeploy-app
+          code_deploy_group_name: ecs-bluegreen-dg
   uat_app_deploy:
     runs-on: ubuntu-latest
     needs: determine_commit_sha

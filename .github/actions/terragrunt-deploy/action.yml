@@ -50,6 +50,16 @@ inputs:
     description: "The commit ID to use as environment variable"
     required: false
     default: "latest"
+  code_deploy_app_name:
+    description: "Name of Code Deploy Application"
+    required: true
+    default: ecs-codedeploy-app
+  code_deploy_group_name:
+    description: "Name of Code Deploy Deployment Group"
+    required: true
+    default: ecs-bluegreen-dg
+  codedeploy_appspec_path: /github/workspace/modules/ecs/ecs-fargate-service-with-alb/appspec.yaml
+  
 
 runs:
   using: "composite"
@@ -104,3 +114,15 @@ runs:
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
         tg_command: "run-all apply"
+    
+    - name: Create CodeDeploy Deployment
+      run: |
+        appspec_base64=$(base64 < "${{ inputs.codedeploy_appspec_path }}" | tr -d '\n')
+        
+        aws deploy create-deployment \
+          --application-name "${{ inputs.code_deploy_app_name }}" \
+          --deployment-group-name "${{ inputs.code_deploy_group_name }}" \
+          --revision "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":\"${appspec_base64}\"}}" \
+          --region "${{ inputs.aws_region }}"
+      shell: bash
+      
