@@ -118,12 +118,24 @@ runs:
         tg_dir: ${{ inputs.terragrunt_dir }}
         tg_command: "run-all apply"
     
+    - name: Get appspec.yaml content
+      uses: gruntwork-io/terragrunt-action@v2
+      id: tg_output
+      with:
+        tf_version: ${{ inputs.tf_version }}
+        tg_version: ${{ inputs.tg_version }}
+        tg_dir: ${{ inputs.terragrunt_dir }}
+        tg_command: "output -json"
+      
+    - name: Save appspec.yaml
+      run: |
+        echo '${{ fromJson(steps.tg_output.outputs.stdout).appspec_yaml_content }}' > appspec.yaml
+
     - name: Create CodeDeploy Deployment
       run: |
-        ls -l
-        cd ./resources/us-east-1/dev/ecs-service/
-        pwd
-        ls -l
         cat appspec.yaml
-      shell: bash
-      
+        aws deploy create-deployment \
+          --application-name ${{ inputs.code_deploy_app_name }} \
+          --deployment-group-name ${{ inputs.code_deploy_group_name }} \
+          --revision "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":\"$(base64 -w 0 appspec.yaml)\"}}" \
+          --region ${{ inputs.aws_region }}
