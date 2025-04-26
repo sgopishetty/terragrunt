@@ -121,7 +121,7 @@ runs:
     - name: Create CodeDeploy Deployment
       run: |
         ls -l
-        cd ./modules/ecs/ecs-fargate-service-with-alb/
+        cd ./resources/us-east-1/dev/ecs-service/
         pwd
         ls -l
         cat appspec.yaml
