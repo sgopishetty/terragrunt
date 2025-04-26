@@ -513,7 +513,7 @@ resource "aws_codedeploy_deployment_group" "ecs_dg" {
       }
 
       prod_traffic_route {
-        listener_arns = module.alb.http_listener_arns["80"]
+        listener_arns = [module.alb.http_listener_arns["80"]]
       }
     }
   }
