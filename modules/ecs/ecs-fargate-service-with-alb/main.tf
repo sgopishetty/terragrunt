@@ -462,7 +462,7 @@ resource "aws_iam_role" "codedeploy_role" {
 
 resource "aws_iam_role_policy_attachment" "codedeploy_attach" {
   role       = aws_iam_role.codedeploy_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForECS"
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
 }
 
 # CodeDeploy Application
@@ -496,6 +496,11 @@ resource "aws_codedeploy_deployment_group" "ecs_dg" {
     green_fleet_provisioning_option {
       action = "DISCOVER_EXISTING"
     }
+  }
+
+  deployment_style {
+    deployment_type = "BLUE_GREEN"
+    deployment_option = "WITH_TRAFFIC_CONTROL"
   }
 
   ecs_service {
