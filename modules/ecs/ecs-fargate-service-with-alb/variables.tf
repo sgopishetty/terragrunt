@@ -272,6 +272,10 @@ variable "alb_name" {
   type = string
 }
 
+variable "app_spec_bucket" {
+  type = string
+}
+
 variable "is_internal_alb" {
   type    = string
   default = false

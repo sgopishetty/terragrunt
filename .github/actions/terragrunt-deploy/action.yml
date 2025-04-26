@@ -58,10 +58,12 @@ inputs:
     description: "Name of Code Deploy Deployment Group"
     required: true
     default: ecs-bluegreen-dg
-  codedeploy_appspec_path:
-    description: "Path to appspec.yaml for CodeDeploy"
+  app_spec_bucket:
+    required: false
+    default: "epi-new-terra-tf-state"
+  appspec_s3_object_key:
     required: true
-    default: "./modules/ecs/ecs-fargate-service-with-alb/appspec.yaml"
+    default: ""
   
 
 runs:
@@ -127,17 +129,11 @@ runs:
         tg_dir: "./resources/us-east-1/dev/ecs-service"
         tg_command: "output -json"
       
-    - name: Save appspec.yaml
-      run: |
-        echo '${{ fromJson(steps.tg_output.outputs.stdout).appspec_yaml_content }}' > appspec.yaml
-      shell: bash
-
     - name: Create CodeDeploy Deployment
       run: |
-        cat appspec.yaml
         aws deploy create-deployment \
           --application-name ${{ inputs.code_deploy_app_name }} \
           --deployment-group-name ${{ inputs.code_deploy_group_name }} \
-          --revision "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":\"$(base64 -w 0 appspec.yaml)\"}}" \
+          --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${{ inputs.app_spec_bucket }}\",\"key\":\"${{ inputs.appspec_s3_object_key }}\",\"bundleType\":\"YAML\"}}" \
           --region ${{ inputs.aws_region }}
       shell: bash

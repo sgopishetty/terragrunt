@@ -543,4 +543,14 @@ resource "local_file" "appspec" {
   depends_on = [module.fargate_service]
 }
 
+resource "aws_s3_object" "upload_appspec" {
+  bucket = var.app_spec_bucket
+  key    = "dev-app-spec/appspec.yaml" # you can customize the key/path
+  source = local_file.appspec.filename
+  etag   = filemd5(local_file.appspec.filename)
+
+  content_type = "text/yaml"
+
+  depends_on = [local_file.appspec]
+}
 

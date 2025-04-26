@@ -77,6 +77,7 @@ inputs = {
   vpc_id                = "vpc-05702d6dd207b8cb4"
 
   deployment_controller = "CODE_DEPLOY"
+  app_spec_bucket       = "epi-new-terra-tf-state"
 
   # ALB configuration
   alb_name            = "chapi-ecs-test"
