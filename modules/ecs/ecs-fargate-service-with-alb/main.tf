@@ -446,7 +446,7 @@ resource "aws_appautoscaling_policy" "scale_in" {
 
 # CodeDeploy IAM Role
 resource "aws_iam_role" "codedeploy_role" {
-  name = "CodeDeployRole"
+  name = "CodeDeployRoleBG"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

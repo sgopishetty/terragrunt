@@ -76,6 +76,8 @@ inputs = {
   health_check_path     = "/"
   vpc_id                = "vpc-05702d6dd207b8cb4"
 
+  deployment_controller = "CODE_DEPLOY"
+
   # ALB configuration
   alb_name            = "chapi-ecs-test"
   is_internal_alb     = false
