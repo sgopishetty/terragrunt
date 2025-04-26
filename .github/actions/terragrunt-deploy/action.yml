@@ -58,7 +58,10 @@ inputs:
     description: "Name of Code Deploy Deployment Group"
     required: true
     default: ecs-bluegreen-dg
-  codedeploy_appspec_path: /github/workspace/modules/ecs/ecs-fargate-service-with-alb/appspec.yaml
+  codedeploy_appspec_path:
+    description: "Path to appspec.yaml for CodeDeploy"
+    required: true
+    default: "/github/workspace/modules/ecs/ecs-fargate-service-with-alb/appspec.yaml"
   
 
 runs:
