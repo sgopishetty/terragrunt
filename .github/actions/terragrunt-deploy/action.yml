@@ -1,4 +1,4 @@
-name: "Terragrunt Plan and Deploy"
+name: "Terragrunt Plan and Deploy "
 description: "Runs Terragrunt plan and apply commands."
 
 inputs:
