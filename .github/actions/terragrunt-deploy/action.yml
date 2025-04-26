@@ -61,7 +61,7 @@ inputs:
   codedeploy_appspec_path:
     description: "Path to appspec.yaml for CodeDeploy"
     required: true
-    default: "/github/workspace/modules/ecs/ecs-fargate-service-with-alb/appspec.yaml"
+    default: "./modules/ecs/ecs-fargate-service-with-alb/appspec.yaml"
   
 
 runs:
@@ -121,7 +121,7 @@ runs:
     - name: Create CodeDeploy Deployment
       run: |
         ls -l
-        cd ./github/workspace/modules/ecs/ecs-fargate-service-with-alb/
+        cd ./modules/ecs/ecs-fargate-service-with-alb/
         pwd
         ls -l
         cat appspec.yaml
