@@ -124,7 +124,7 @@ runs:
       with:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
-        tg_dir: ${{ inputs.terragrunt_dir }}
+        tg_dir: "./resources/us-east-1/dev/ecs-service"
         tg_command: "output -json"
       
     - name: Save appspec.yaml
