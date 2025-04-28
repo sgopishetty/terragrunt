@@ -530,7 +530,7 @@ resource "aws_codedeploy_deployment_group" "ecs_dg" {
 resource "local_file" "appspec" {
   filename = "${path.module}/appspec.yaml"
   content  = <<-EOT
-    version: 1
+    version: 0.0
     Resources:
       - TargetService:
           Type: AWS::ECS::Service
@@ -539,6 +539,7 @@ resource "local_file" "appspec" {
             LoadBalancerInfo:
               ContainerName: "${var.container_name}"
               ContainerPort: "${var.container_port}"
+            PlatformVersion: "LATEST"
   EOT
   depends_on = [module.fargate_service]
 }
