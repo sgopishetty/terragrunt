@@ -541,7 +541,7 @@ resource "local_file" "appspec" {
               ContainerPort: "${var.container_port}"
             PlatformVersion: "LATEST"
   EOT
-  depends_on = [module.fargate_service]
+  depends_on = [module.fargate_service.aws_ecs_task_definition.task]
 }
 
 resource "aws_s3_object" "upload_appspec" {
