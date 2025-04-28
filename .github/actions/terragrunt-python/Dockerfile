@@ -19,7 +19,7 @@ RUN apt-get update \
     sudo \
     python3 \
     python3-pip \
-    openssh-client=1:8.9p1-3ubuntu0.11 \
+    openssh-server \
     libkrb5support0 \
     libkrb5-3 \
     libk5crypto3 \
