@@ -550,7 +550,7 @@ resource "aws_s3_object" "upload_appspec" {
   key    = "dev-app-spec/appspec.yaml" # you can customize the key/path
   source = local_file.appspec.filename
 
-  source_hash = filemd5(local_file.appspec.filename) # <= ADD THIS
+  source_hash = md5(local_file.appspec.filename) # <= ADD THIS
 
   content_type = "text/yaml"
 
@@ -573,6 +573,6 @@ EOT
 
   depends_on = [aws_s3_object.upload_appspec] # optional but better
   triggers = {
-    appspec_hash = filemd5(local_file.appspec.filename) # <= ADD THIS
+    appspec_hash = md5(local_file.appspec.filename) # <= ADD THIS
   }
 }
