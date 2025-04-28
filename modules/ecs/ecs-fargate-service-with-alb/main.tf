@@ -529,20 +529,18 @@ resource "aws_codedeploy_deployment_group" "ecs_dg" {
 
 resource "local_file" "appspec" {
   filename = "${path.module}/appspec.yaml"
-  content  = <<-EOT
-    version: 0.0
-    Resources:
-      - TargetService:
-          Type: AWS::ECS::Service
-          Properties:
-            TaskDefinition: "${module.fargate_service.aws_ecs_task_definition_arn}"
-            LoadBalancerInfo:
-              ContainerName: "${var.container_name}"
-              ContainerPort: "${var.container_port}"
-            PlatformVersion: "LATEST"
-    # generated_at: ${timestamp()}
-  EOT
-  depends_on = [module.fargate_service]
+  content  = <<EOT
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "${module.fargate_service.aws_ecs_task_definition_arn}"
+        LoadBalancerInfo:
+          ContainerName: "${var.container_name}"
+          ContainerPort: ${var.container_port}
+        PlatformVersion: LATEST
+EOT
 }
 
 resource "aws_s3_object" "upload_appspec" {
