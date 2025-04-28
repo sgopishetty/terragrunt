@@ -101,7 +101,7 @@ runs:
 
     - name: Terragrunt Plan
       id: plan
-      uses: gruntwork-io/terragrunt-action@v2
+      uses: ./.github/actions/terragrunt-python
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
       with:
@@ -111,21 +111,21 @@ runs:
         tg_command: "run-all plan -out=tf.plan"
       
     - name: Terragrunt Apply
-      uses: gruntwork-io/terragrunt-action@v2
+      uses: ./.github/actions/terragrunt-python
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
       with:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
-        tg_command: "run-all destroy"
+        tg_command: "run-all apply"
     
       
-    - name: Create CodeDeploy Deployment
-      run: |
-        aws deploy create-deployment \
-          --application-name ${{ inputs.code_deploy_app_name }} \
-          --deployment-group-name ${{ inputs.code_deploy_group_name }} \
-          --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${{ inputs.app_spec_bucket }}\",\"key\":\"${{ inputs.appspec_s3_object_key }}\",\"bundleType\":\"YAML\"}}" \
-          --region ${{ inputs.aws_region }}
-      shell: bash
+    #- name: Create CodeDeploy Deployment
+    #  run: |
+    #    aws deploy create-deployment \
+    #      --application-name ${{ inputs.code_deploy_app_name }} \
+    #      --deployment-group-name ${{ inputs.code_deploy_group_name }} \
+    #      --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${{ inputs.app_spec_bucket }}\",\"key\":\"${{ inputs.appspec_s3_object_key }}\",\"bundleType\":\"YAML\"}}" \
+    #      --region ${{ inputs.aws_region }}
+    #  shell: bash
