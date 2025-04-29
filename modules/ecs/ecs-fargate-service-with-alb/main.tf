@@ -557,3 +557,22 @@ EOT
 
   depends_on = [local_file.appspec]
 }
+
+resource "null_resource" "codedeploy_deployment" {
+  provisioner "local-exec" {
+    command = <<EOT
+aws deploy create-deployment \
+  --application-name "${aws_codedeploy_app.ecs_app.name}" \
+  --deployment-group-name "${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name}" \
+  --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${var.app_spec_bucket}\",\"key\":\"dev-app-spec/appspec.yaml\",\"bundleType\":\"YAML\"}}" \
+  --region "${var.aws_region}"
+EOT
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  depends_on = [null_resource.upload_appspec]
+}
