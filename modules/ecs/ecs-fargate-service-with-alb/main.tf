@@ -543,14 +543,17 @@ Resources:
 EOT
 }
 
-resource "aws_s3_object" "upload_appspec" {
-  bucket = var.app_spec_bucket
-  key    = "dev-app-spec/appspec.yaml" # you can customize the key/path
-  source = local_file.appspec.filename
+resource "null_resource" "upload_appspec" {
+  provisioner "local-exec" {
+    command = <<EOT
+aws s3 cp "${path.module}/appspec.yaml" "s3://${var.app_spec_bucket}/dev-app-spec/appspec.yaml" --content-type "text/yaml"
+EOT
+    interpreter = ["/bin/bash", "-c"]
+  }
 
-  source_hash = md5(local_file.appspec.filename) # <= ADD THIS
-
-  content_type = "text/yaml"
+  triggers = {
+    always_run = timestamp()
+  }
 
   depends_on = [local_file.appspec]
 }
