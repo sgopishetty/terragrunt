@@ -554,23 +554,3 @@ resource "aws_s3_object" "upload_appspec" {
 
   depends_on = [local_file.appspec]
 }
-
-resource "null_resource" "codedeploy_deployment" {
-  provisioner "local-exec" {
-    command = <<EOT
-APPSPEC_CONTENT=$(base64 -w 0 ${path.module}/appspec.yaml)
-
-aws deploy create-deployment \
-  --application-name ${aws_codedeploy_app.ecs_app.name} \
-  --deployment-group-name ${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name} \
-  --revision "{\"revisionType\":\"AppSpecContent\",\"appSpecContent\":{\"content\":\"$APPSPEC_CONTENT\"}}" \
-  --region ${var.aws_region}
-EOT
-    interpreter = ["/bin/bash", "-c"]
-  }
-
-  depends_on = [aws_s3_object.upload_appspec] # optional but better
-  triggers = {
-    appspec_hash = md5(local_file.appspec.filename) # <= ADD THIS
-  }
-}
