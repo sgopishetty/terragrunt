@@ -91,7 +91,7 @@ locals {
   # 3. To use an AWS Fargate capacity provider, specify either the FARGATE or FARGATE_SPOT capacity providers.
   launch_type       = length(var.capacity_provider_strategy) == 0 ? var.launch_type : null
   #blue_target_group = var.deployment_controller == "CODE_DEPLOY" ? keys(aws_lb_target_group.ecs_service)[0] : null
-  blue_target_group = var.deployment_controller == "CODE_DEPLOY" ? "alb" : null
+  blue_target_group = var.deployment_controller == "CODE_DEPLOY" ? "green" : null
 }
 
 resource "aws_ecs_service" "service_with_auto_scaling" {
