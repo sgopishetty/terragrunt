@@ -253,7 +253,7 @@ resource "aws_alb_listener_rule" "path_based_example" {
   # Amazon Resource Name (ARN), which we must pass to this rule so it knows which ALB Listener to "attach" to. Fortunately,
   # Our ALB module outputs values like http_listener_arns, https_listener_non_acm_cert_arns, and https_listener_acm_cert_arns
   # so that we can easily look up the ARN by the port number.
-  for_each = var.deployment_controller != "CODE_DEPLOY" && var.create_alb_listener_http_rule ? { "enabled" = true } : {}
+  count        = var.create_alb_listener_https_rule ? 1 : 0
   listener_arn = module.alb.http_listener_arns["80"]
 
   priority = 100
