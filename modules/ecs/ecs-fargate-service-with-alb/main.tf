@@ -287,7 +287,7 @@ resource "aws_alb_listener_rule" "path_based_example" {
 
 #   action {
 #     type             = "forward"
-#     target_group_arn = module.fargate_service.target_group_arns["alb"]
+#     target_group_arn = module.fargate_service.target_group_arns["green"]
 #   }
 
 #   condition {
