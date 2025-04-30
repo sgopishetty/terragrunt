@@ -253,7 +253,7 @@ resource "aws_alb_listener_rule" "path_based_example" {
   # Amazon Resource Name (ARN), which we must pass to this rule so it knows which ALB Listener to "attach" to. Fortunately,
   # Our ALB module outputs values like http_listener_arns, https_listener_non_acm_cert_arns, and https_listener_acm_cert_arns
   # so that we can easily look up the ARN by the port number.
-  count = var.create_alb_listener_http_rule ? 1 : 0
+  count = var.deployment_controller == "CODE_DEPLOY" ? 0 : var.create_alb_listener_http_rule ? 1 : 0
   listener_arn = module.alb.http_listener_arns["80"]
 
   priority = 100
@@ -562,21 +562,21 @@ EOT
   depends_on = [local_file.appspec]
 }
 
-#resource "null_resource" "codedeploy_deployment" {
-#  provisioner "local-exec" {
-#    command = <<EOT
-#aws deploy create-deployment \
-#  --application-name "${aws_codedeploy_app.ecs_app.name}" \
-#  --deployment-group-name "${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name}" \
-#  --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${var.app_spec_bucket}\",\"key\":\"dev-app-spec/appspec.yaml\",\"bundleType\":\"YAML\"}}" \
-#  --region "${var.aws_region}"
-#EOT
-#    interpreter = ["/bin/bash", "-c"]
-#  }
-#
-#  triggers = {
-#    always_run = timestamp()
-#  }
-#
-#  depends_on = [null_resource.upload_appspec]
-#}
+resource "null_resource" "codedeploy_deployment" {
+  provisioner "local-exec" {
+    command = <<EOT
+aws deploy create-deployment \
+  --application-name "${aws_codedeploy_app.ecs_app.name}" \
+  --deployment-group-name "${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name}" \
+  --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${var.app_spec_bucket}\",\"key\":\"dev-app-spec/appspec.yaml\",\"bundleType\":\"YAML\"}}" \
+  --region "${var.aws_region}"
+EOT
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  depends_on = [null_resource.upload_appspec]
+}
