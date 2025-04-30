@@ -247,28 +247,28 @@ resource "aws_alb_listener_rule" "path_https" {
 # Path-based Listener Rules are used when you wish to route all requests received by the ALB that match a certain
 # "path" pattern to a given ECS Service. This is useful if you have one service that should receive all requests sent
 # to /api and another service that receives requests sent to /customers.
-#resource "aws_alb_listener_rule" "path_based_example" {
-#  # Get the Listener ARN associated with port 5000 on the ALB
-#  # In other words, this ALB has a Listener that listens for incoming traffic on port 80. That Listener has a unique
-#  # Amazon Resource Name (ARN), which we must pass to this rule so it knows which ALB Listener to "attach" to. Fortunately,
-#  # Our ALB module outputs values like http_listener_arns, https_listener_non_acm_cert_arns, and https_listener_acm_cert_arns
-#  # so that we can easily look up the ARN by the port number.
-#  count        = var.create_alb_listener_http_rule ? 1 : 0
-#  listener_arn = module.alb.http_listener_arns["80"]
-#
-#  priority = 100
-#
-#  action {
-#    type             = "forward"
-#    target_group_arn = module.fargate_service.target_group_arns["green"]
-#  }
-#
-#  condition {
-#    path_pattern {
-#      values = ["/*"]
-#    }
-#  }
-#}
+resource "aws_alb_listener_rule" "path_based_example" {
+  # Get the Listener ARN associated with port 5000 on the ALB
+  # In other words, this ALB has a Listener that listens for incoming traffic on port 80. That Listener has a unique
+  # Amazon Resource Name (ARN), which we must pass to this rule so it knows which ALB Listener to "attach" to. Fortunately,
+  # Our ALB module outputs values like http_listener_arns, https_listener_non_acm_cert_arns, and https_listener_acm_cert_arns
+  # so that we can easily look up the ARN by the port number.
+  count        = var.create_alb_listener_http_rule ? 1 : 0
+  listener_arn = module.alb.http_listener_arns["80"]
+
+  priority = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = module.fargate_service.target_group_arns["green"]
+  }
+
+  condition {
+    path_pattern {
+      values = ["/*"]
+    }
+  }
+}
 
 # resource "aws_alb_listener_rule" "path_based_example_81" {
 #   # Get the Listener ARN associated with port 5000 on the ALB
