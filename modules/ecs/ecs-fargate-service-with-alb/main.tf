@@ -268,6 +268,10 @@ resource "aws_alb_listener_rule" "path_based_example" {
       values = ["/*"]
     }
   }
+
+  lifecycle {
+    ignore_changes = [action]
+  }
 }
 
 # resource "aws_alb_listener_rule" "path_based_example_81" {
