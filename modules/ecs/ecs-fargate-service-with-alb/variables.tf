@@ -255,7 +255,7 @@ variable "green_alb_protocol" {
 
 variable "health_check_protocol" {
   type    = string
-  default = "HTTP"
+  default = "HTTPS"
 }
 
 variable "green_health_check_protocol" {

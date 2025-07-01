@@ -87,6 +87,7 @@ module "fargate_service" {
       container_port        = var.container_port
       protocol              = var.alb_protocol
       health_check_protocol = var.health_check_protocol
+      health_check_port     = var.green_health_check_port
       
     }
     green = {
