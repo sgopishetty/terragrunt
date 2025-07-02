@@ -81,15 +81,15 @@ module "fargate_service" {
 
   # Configure ALB
   elb_target_groups = {
-    alb = {
-      name                  = "${var.service_name}-blue"
-      container_name        = var.container_name
-      container_port        = var.container_port
-      protocol              = var.alb_protocol
-      health_check_protocol = var.health_check_protocol
-      health_check_port     = var.green_health_check_port
-      
-    }
+    #alb = {
+    #  name                  = "${var.service_name}-blue"
+    #  container_name        = var.container_name
+    #  container_port        = var.container_port
+    #  protocol              = var.alb_protocol
+    #  health_check_protocol = var.health_check_protocol
+    #  health_check_port     = var.green_health_check_port
+    #  
+    #}
     green = {
       name                  = "${var.service_name}-green"
       container_name        = var.green_container_name
