@@ -21,7 +21,8 @@ resource "aws_appautoscaling_target" "appautoscaling_target" {
   # https://github.com/gruntwork-io/terraform-aws-ecs/issues/320
   # https://github.com/hashicorp/terraform-provider-aws/issues/10432#issuecomment-588264307
 
-  resource_id = "service/${local.ecs_cluster_name}/${var.service_name}${replace("${var.deployment_controller == "CODE_DEPLOY" ? aws_ecs_service.service_with_auto_scaling_and_code_deploy_blue_green[0].id : aws_ecs_service.service_with_auto_scaling[0].id}", "/.*/", "")}"
+  #resource_id = "service/${local.ecs_cluster_name}/${var.service_name}${replace("${var.deployment_controller == "CODE_DEPLOY" ? aws_ecs_service.service_with_auto_scaling_and_code_deploy_blue_green[0].id : aws_ecs_service.service_with_auto_scaling[0].id}", "/.*/", "")}"
+  resource_id = "service/${local.ecs_cluster_name}/${var.service_name}${replace(aws_ecs_service.service_with_auto_scaling[0].id, "/.*/", "")}"
   
   min_capacity = var.min_number_of_tasks
   max_capacity = var.max_number_of_tasks
