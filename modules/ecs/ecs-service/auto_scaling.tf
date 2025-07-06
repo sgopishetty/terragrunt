@@ -30,7 +30,7 @@ resource "aws_appautoscaling_target" "appautoscaling_target" {
   depends_on = [
     aws_ecs_service.service_with_auto_scaling,
     aws_ecs_service.service_without_auto_scaling,
-    aws_ecs_service.service_without_auto_scaling_and_code_deploy_blue_green,
+    #aws_ecs_service.service_without_auto_scaling_and_code_deploy_blue_green,
     aws_ecs_service.canary,
   ]
 }
