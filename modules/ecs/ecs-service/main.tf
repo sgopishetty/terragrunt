@@ -95,7 +95,8 @@ locals {
 }
 
 resource "aws_ecs_service" "service_with_auto_scaling" {
-  count = var.use_auto_scaling && var.deployment_controller != "CODE_DEPLOY" ? 1 : 0
+  #count = var.use_auto_scaling && var.deployment_controller != "CODE_DEPLOY" ? 1 : 0
+  count = var.use_auto_scaling ? 1 : 0
   depends_on = [
     aws_iam_role_policy.ecs_service_policy,
     null_resource.dependency_getter,
@@ -175,12 +176,23 @@ resource "aws_ecs_service" "service_with_auto_scaling" {
   }
 
   # NOTE: resources/locals here are defined in elb.tf
+  #dynamic "load_balancer" {
+  #  for_each = aws_lb_target_group.ecs_service
+  #  content {
+  #    target_group_arn = load_balancer.value.arn
+  #    container_name   = var.elb_target_groups[load_balancer.key].container_name
+  #    container_port   = var.elb_target_groups[load_balancer.key].container_port
+  #  }
+  #}
+
+  # Handle load_balancer for standard or CodeDeploy
   dynamic "load_balancer" {
-    for_each = aws_lb_target_group.ecs_service
+    for_each = var.deployment_controller == "CODE_DEPLOY" ? 
+      [local.blue_target_group] : toset(keys(aws_lb_target_group.ecs_service))
     content {
-      target_group_arn = load_balancer.value.arn
-      container_name   = var.elb_target_groups[load_balancer.key].container_name
-      container_port   = var.elb_target_groups[load_balancer.key].container_port
+      target_group_arn = aws_lb_target_group.ecs_service[load_balancer.value].arn
+      container_name   = var.elb_target_groups[load_balancer.value].container_name
+      container_port   = var.elb_target_groups[load_balancer.value].container_port
     }
   }
 
@@ -217,106 +229,106 @@ resource "aws_ecs_service" "service_with_auto_scaling" {
   }
 }
 
-resource "aws_ecs_service" "service_with_auto_scaling_and_code_deploy_blue_green" {
-  count = var.use_auto_scaling && var.deployment_controller == "CODE_DEPLOY" ? 1 : 0
-  depends_on = [
-    aws_iam_role_policy.ecs_service_policy,
-    null_resource.dependency_getter,
-    null_resource.listener_rules
-  ]
-
-  name            = var.service_name
-  cluster         = var.ecs_cluster_arn
-  task_definition = aws_ecs_task_definition.task.arn
-
-  # If associating with an ELB, set the IAM role that has the permissions to be able to talk to the ELB. The depends_on
-  # is required according to the Terraform docs: https://www.terraform.io/docs/providers/aws/r/ecs_service.html
-  # NOTE: resources/locals here are defined in elb.tf
-  iam_role = (
-    local.need_ecs_iam_role_for_elb
-    ? aws_iam_role.ecs_service_role[0].arn
-    : null
-  )
-
-  launch_type                        = local.launch_type
-  desired_count                      = var.desired_number_of_tasks
-  deployment_maximum_percent         = var.deployment_maximum_percent
-  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
-  health_check_grace_period_seconds  = var.health_check_grace_period_seconds
-  enable_execute_command             = var.enable_execute_command
-
-  dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy
-    content {
-      capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
-      base              = capacity_provider_strategy.value.base
-    }
-  }
-
-  dynamic "ordered_placement_strategy" {
-    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
-    for_each = local.is_fargate ? [] : var.ordered_placement_strategy
-    content {
-      type  = ordered_placement_strategy.value.type
-      field = lookup(ordered_placement_strategy.value, "field", null)
-    }
-  }
-
-  dynamic "placement_constraints" {
-    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
-    for_each = local.is_fargate ? [] : ["use_ec2"]
-    content {
-      type       = var.placement_constraint_type
-      expression = var.placement_constraint_expression
-    }
-  }
-
-  dynamic "network_configuration" {
-    for_each = var.ecs_task_definition_network_mode == "awsvpc" ? [var.ecs_service_network_configuration] : []
-    content {
-      subnets          = network_configuration.value.subnets
-      security_groups  = network_configuration.value.security_groups
-      assign_public_ip = network_configuration.value.assign_public_ip
-    }
-  }
-
-  dynamic "service_registries" {
-    for_each = aws_service_discovery_service.discovery.*.arn
-    content {
-      registry_arn = service_registries.value
-    }
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.ecs_service[local.blue_target_group].arn
-    container_name   = var.elb_target_groups[local.blue_target_group].container_name
-    container_port   = var.elb_target_groups[local.blue_target_group].container_port
-  }
-
-  # When the use_auto_scaling property is set to true, we need to tell the ECS Service to ignore the desired_count
-  # property, as the number of instances will be controlled by auto scaling. For more info, see:
-  # https://github.com/hashicorp/terraform/issues/10308
-  # Also to allow CodeDeploy blue green we ignore changes to load balancer and task definition
-  # Also ignoring capacity provider to allow CodeDeploy appspec file to specify capacity provider strategy
-  lifecycle {
-    ignore_changes = [desired_count, task_definition, load_balancer, capacity_provider_strategy, launch_type]
-  }
-
-  platform_version = var.platform_version
-
-  tags           = var.service_tags
-  propagate_tags = var.propagate_tags
-
-  wait_for_steady_state = var.wait_for_steady_state
-
-  dynamic "deployment_controller" {
-    for_each = var.deployment_controller != null ? [var.deployment_controller] : []
-    content {
-      type = var.deployment_controller
-    }
-  }
-}
+#resource "aws_ecs_service" "service_with_auto_scaling_and_code_deploy_blue_green" {
+#  count = var.use_auto_scaling && var.deployment_controller == "CODE_DEPLOY" ? 1 : 0
+#  depends_on = [
+#    aws_iam_role_policy.ecs_service_policy,
+#    null_resource.dependency_getter,
+#    null_resource.listener_rules
+#  ]
+#
+#  name            = var.service_name
+#  cluster         = var.ecs_cluster_arn
+#  task_definition = aws_ecs_task_definition.task.arn
+#
+#  # If associating with an ELB, set the IAM role that has the permissions to be able to talk to the ELB. The depends_on
+#  # is required according to the Terraform docs: https://www.terraform.io/docs/providers/aws/r/ecs_service.html
+#  # NOTE: resources/locals here are defined in elb.tf
+#  iam_role = (
+#    local.need_ecs_iam_role_for_elb
+#    ? aws_iam_role.ecs_service_role[0].arn
+#    : null
+#  )
+#
+#  launch_type                        = local.launch_type
+#  desired_count                      = var.desired_number_of_tasks
+#  deployment_maximum_percent         = var.deployment_maximum_percent
+#  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
+#  health_check_grace_period_seconds  = var.health_check_grace_period_seconds
+#  enable_execute_command             = var.enable_execute_command
+#
+#  dynamic "capacity_provider_strategy" {
+#    for_each = var.capacity_provider_strategy
+#    content {
+#      capacity_provider = capacity_provider_strategy.value.capacity_provider
+#      weight            = capacity_provider_strategy.value.weight
+#      base              = capacity_provider_strategy.value.base
+#    }
+#  }
+#
+#  dynamic "ordered_placement_strategy" {
+#    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
+#    for_each = local.is_fargate ? [] : var.ordered_placement_strategy
+#    content {
+#      type  = ordered_placement_strategy.value.type
+#      field = lookup(ordered_placement_strategy.value, "field", null)
+#    }
+#  }
+#
+#  dynamic "placement_constraints" {
+#    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
+#    for_each = local.is_fargate ? [] : ["use_ec2"]
+#    content {
+#      type       = var.placement_constraint_type
+#      expression = var.placement_constraint_expression
+#    }
+#  }
+#
+#  dynamic "network_configuration" {
+#    for_each = var.ecs_task_definition_network_mode == "awsvpc" ? [var.ecs_service_network_configuration] : []
+#    content {
+#      subnets          = network_configuration.value.subnets
+#      security_groups  = network_configuration.value.security_groups
+#      assign_public_ip = network_configuration.value.assign_public_ip
+#    }
+#  }
+#
+#  dynamic "service_registries" {
+#    for_each = aws_service_discovery_service.discovery.*.arn
+#    content {
+#      registry_arn = service_registries.value
+#    }
+#  }
+#
+#  load_balancer {
+#    target_group_arn = aws_lb_target_group.ecs_service[local.blue_target_group].arn
+#    container_name   = var.elb_target_groups[local.blue_target_group].container_name
+#    container_port   = var.elb_target_groups[local.blue_target_group].container_port
+#  }
+#
+#  # When the use_auto_scaling property is set to true, we need to tell the ECS Service to ignore the desired_count
+#  # property, as the number of instances will be controlled by auto scaling. For more info, see:
+#  # https://github.com/hashicorp/terraform/issues/10308
+#  # Also to allow CodeDeploy blue green we ignore changes to load balancer and task definition
+#  # Also ignoring capacity provider to allow CodeDeploy appspec file to specify capacity provider strategy
+#  lifecycle {
+#    ignore_changes = [desired_count, task_definition, load_balancer, capacity_provider_strategy, launch_type]
+#  }
+#
+#  platform_version = var.platform_version
+#
+#  tags           = var.service_tags
+#  propagate_tags = var.propagate_tags
+#
+#  wait_for_steady_state = var.wait_for_steady_state
+#
+#  dynamic "deployment_controller" {
+#    for_each = var.deployment_controller != null ? [var.deployment_controller] : []
+#    content {
+#      type = var.deployment_controller
+#    }
+#  }
+#}
 
 resource "aws_ecs_service" "service_without_auto_scaling" {
   count = var.use_auto_scaling == false && var.deployment_controller != "CODE_DEPLOY" ? 1 : 0
@@ -431,101 +443,101 @@ resource "aws_ecs_service" "service_without_auto_scaling" {
 
 
 
-resource "aws_ecs_service" "service_without_auto_scaling_and_code_deploy_blue_green" {
-  count = var.use_auto_scaling == false && var.deployment_controller == "CODE_DEPLOY" ? 1 : 0
-  depends_on = [
-    aws_iam_role_policy.ecs_service_policy,
-    null_resource.dependency_getter,
-    null_resource.listener_rules,
-  ]
-
-  name            = var.service_name
-  cluster         = var.ecs_cluster_arn
-  task_definition = aws_ecs_task_definition.task.arn
-
-  # If associating with an ELB, set the IAM role that has the permissions to be able to talk to the ELB. The depends_on
-  # is required according to the Terraform docs: https://www.terraform.io/docs/providers/aws/r/ecs_service.html
-  # NOTE: resources/locals here are defined in elb.tf
-  iam_role = (
-    local.need_ecs_iam_role_for_elb
-    ? aws_iam_role.ecs_service_role[0].arn
-    : null
-  )
-
-  launch_type                        = local.launch_type
-  desired_count                      = var.desired_number_of_tasks
-  deployment_maximum_percent         = var.deployment_maximum_percent
-  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
-  health_check_grace_period_seconds  = var.health_check_grace_period_seconds
-  enable_execute_command             = var.enable_execute_command
-
-  dynamic "capacity_provider_strategy" {
-    for_each = var.capacity_provider_strategy
-    content {
-      capacity_provider = capacity_provider_strategy.value.capacity_provider
-      weight            = capacity_provider_strategy.value.weight
-      base              = capacity_provider_strategy.value.base
-    }
-  }
-
-  dynamic "ordered_placement_strategy" {
-    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
-    for_each = local.is_fargate ? [] : var.ordered_placement_strategy
-    content {
-      type  = ordered_placement_strategy.value.type
-      field = lookup(ordered_placement_strategy.value, "field", null)
-    }
-  }
-
-  dynamic "placement_constraints" {
-    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
-    for_each = local.is_fargate ? [] : ["use_ec2"]
-    content {
-      type       = var.placement_constraint_type
-      expression = var.placement_constraint_expression
-    }
-  }
-
-  dynamic "network_configuration" {
-    for_each = var.ecs_task_definition_network_mode == "awsvpc" ? [var.ecs_service_network_configuration] : []
-    content {
-      subnets          = network_configuration.value.subnets
-      security_groups  = network_configuration.value.security_groups
-      assign_public_ip = network_configuration.value.assign_public_ip
-    }
-  }
-
-  dynamic "service_registries" {
-    for_each = aws_service_discovery_service.discovery.*.arn
-    content {
-      registry_arn = service_registries.value
-    }
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.ecs_service[local.blue_target_group].arn
-    container_name   = var.elb_target_groups[local.blue_target_group].container_name
-    container_port   = var.elb_target_groups[local.blue_target_group].container_port
-  }
-
-  # To allow CodeDeploy blue green we ignore changes to load balancer and task definition
-  # Also to allow CodeDeploy blue green we ignore changes to load balancer and task definition
-  # Also ignoring capacity provider to allow CodeDeploy appspec file to specify capacity provider strategy
-  lifecycle {
-    ignore_changes = [task_definition, load_balancer, capacity_provider_strategy, launch_type]
-  }
-
-  platform_version = var.platform_version
-
-  tags           = var.service_tags
-  propagate_tags = var.propagate_tags
-
-  wait_for_steady_state = var.wait_for_steady_state
-
-  deployment_controller {
-    type = var.deployment_controller
-  }
-}
+#resource "aws_ecs_service" "service_without_auto_scaling_and_code_deploy_blue_green" {
+#  count = var.use_auto_scaling == false && var.deployment_controller == "CODE_DEPLOY" ? 1 : 0
+#  depends_on = [
+#    aws_iam_role_policy.ecs_service_policy,
+#    null_resource.dependency_getter,
+#    null_resource.listener_rules,
+#  ]
+#
+#  name            = var.service_name
+#  cluster         = var.ecs_cluster_arn
+#  task_definition = aws_ecs_task_definition.task.arn
+#
+#  # If associating with an ELB, set the IAM role that has the permissions to be able to talk to the ELB. The depends_on
+#  # is required according to the Terraform docs: https://www.terraform.io/docs/providers/aws/r/ecs_service.html
+#  # NOTE: resources/locals here are defined in elb.tf
+#  iam_role = (
+#    local.need_ecs_iam_role_for_elb
+#    ? aws_iam_role.ecs_service_role[0].arn
+#    : null
+#  )
+#
+#  launch_type                        = local.launch_type
+#  desired_count                      = var.desired_number_of_tasks
+#  deployment_maximum_percent         = var.deployment_maximum_percent
+#  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
+#  health_check_grace_period_seconds  = var.health_check_grace_period_seconds
+#  enable_execute_command             = var.enable_execute_command
+#
+#  dynamic "capacity_provider_strategy" {
+#    for_each = var.capacity_provider_strategy
+#    content {
+#      capacity_provider = capacity_provider_strategy.value.capacity_provider
+#      weight            = capacity_provider_strategy.value.weight
+#      base              = capacity_provider_strategy.value.base
+#    }
+#  }
+#
+#  dynamic "ordered_placement_strategy" {
+#    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
+#    for_each = local.is_fargate ? [] : var.ordered_placement_strategy
+#    content {
+#      type  = ordered_placement_strategy.value.type
+#      field = lookup(ordered_placement_strategy.value, "field", null)
+#    }
+#  }
+#
+#  dynamic "placement_constraints" {
+#    # The contents of the list is irrelevant. The only important thing is whether or not to create this block.
+#    for_each = local.is_fargate ? [] : ["use_ec2"]
+#    content {
+#      type       = var.placement_constraint_type
+#      expression = var.placement_constraint_expression
+#    }
+#  }
+#
+#  dynamic "network_configuration" {
+#    for_each = var.ecs_task_definition_network_mode == "awsvpc" ? [var.ecs_service_network_configuration] : []
+#    content {
+#      subnets          = network_configuration.value.subnets
+#      security_groups  = network_configuration.value.security_groups
+#      assign_public_ip = network_configuration.value.assign_public_ip
+#    }
+#  }
+#
+#  dynamic "service_registries" {
+#    for_each = aws_service_discovery_service.discovery.*.arn
+#    content {
+#      registry_arn = service_registries.value
+#    }
+#  }
+#
+#  load_balancer {
+#    target_group_arn = aws_lb_target_group.ecs_service[local.blue_target_group].arn
+#    container_name   = var.elb_target_groups[local.blue_target_group].container_name
+#    container_port   = var.elb_target_groups[local.blue_target_group].container_port
+#  }
+#
+#  # To allow CodeDeploy blue green we ignore changes to load balancer and task definition
+#  # Also to allow CodeDeploy blue green we ignore changes to load balancer and task definition
+#  # Also ignoring capacity provider to allow CodeDeploy appspec file to specify capacity provider strategy
+#  lifecycle {
+#    ignore_changes = [task_definition, load_balancer, capacity_provider_strategy, launch_type]
+#  }
+#
+#  platform_version = var.platform_version
+#
+#  tags           = var.service_tags
+#  propagate_tags = var.propagate_tags
+#
+#  wait_for_steady_state = var.wait_for_steady_state
+#
+#  deployment_controller {
+#    type = var.deployment_controller
+#  }
+#}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE ECS SERVICE CANARIES
