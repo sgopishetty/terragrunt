@@ -187,14 +187,15 @@ resource "aws_ecs_service" "service_with_auto_scaling" {
 
   # Handle load_balancer for standard or CodeDeploy
   dynamic "load_balancer" {
-    for_each = var.deployment_controller == "CODE_DEPLOY" ? 
-      [local.blue_target_group] : toset(keys(aws_lb_target_group.ecs_service))
-    content {
-      target_group_arn = aws_lb_target_group.ecs_service[load_balancer.value].arn
-      container_name   = var.elb_target_groups[load_balancer.value].container_name
-      container_port   = var.elb_target_groups[load_balancer.value].container_port
-    }
+  for_each = var.deployment_controller == "CODE_DEPLOY" ? 
+    toset([local.blue_target_group]) : toset(keys(aws_lb_target_group.ecs_service))
+
+  content {
+    target_group_arn = aws_lb_target_group.ecs_service[load_balancer.value].arn
+    container_name   = var.elb_target_groups[load_balancer.value].container_name
+    container_port   = var.elb_target_groups[load_balancer.value].container_port
   }
+}
 
   
 
