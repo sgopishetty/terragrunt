@@ -477,59 +477,59 @@ resource "aws_codedeploy_app" "ecs_app" {
 }
 #
 ## CodeDeploy Deployment Group
-resource "aws_codedeploy_deployment_group" "ecs_dg" {
-  app_name              = aws_codedeploy_app.ecs_app.name
-  deployment_group_name = "ecs-bluegreen-dg"
-  service_role_arn      = aws_iam_role.codedeploy_role.arn
-  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
-
-  auto_rollback_configuration {
-    enabled = true
-    events  = ["DEPLOYMENT_FAILURE"]
-  }
-
-  blue_green_deployment_config {
-    terminate_blue_instances_on_deployment_success {
-      action                           = "TERMINATE"
-      termination_wait_time_in_minutes = 1
-    }
-
-    deployment_ready_option {
-      action_on_timeout = "CONTINUE_DEPLOYMENT"
-    }
-
-  }
-
-  deployment_style {
-    deployment_type = "BLUE_GREEN"
-    deployment_option = "WITH_TRAFFIC_CONTROL"
-  }
-
-  ecs_service {
-    cluster_name = var.ecs_cluster_name
-    service_name = var.service_name
-  }
-
-  load_balancer_info {
-    target_group_pair_info {
-      target_group {
-        name = module.fargate_service.target_group_names["alb"]
-      }
-      target_group {
-        name = module.fargate_service.target_group_names["green"]
-      }
-
-      prod_traffic_route {
-        listener_arns = [module.alb.http_listener_arns["80"]]
-      }
-    }
-  }
-  depends_on = [ 
-    aws_codedeploy_app.ecs_app, 
-    aws_iam_role.codedeploy_role,
-    module.fargate_service
-   ]
-}
+#resource "aws_codedeploy_deployment_group" "ecs_dg" {
+#  app_name              = aws_codedeploy_app.ecs_app.name
+#  deployment_group_name = "ecs-bluegreen-dg"
+#  service_role_arn      = aws_iam_role.codedeploy_role.arn
+#  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+#
+#  auto_rollback_configuration {
+#    enabled = true
+#    events  = ["DEPLOYMENT_FAILURE"]
+#  }
+#
+#  blue_green_deployment_config {
+#    terminate_blue_instances_on_deployment_success {
+#      action                           = "TERMINATE"
+#      termination_wait_time_in_minutes = 1
+#    }
+#
+#    deployment_ready_option {
+#      action_on_timeout = "CONTINUE_DEPLOYMENT"
+#    }
+#
+#  }
+#
+#  deployment_style {
+#    deployment_type = "BLUE_GREEN"
+#    deployment_option = "WITH_TRAFFIC_CONTROL"
+#  }
+#
+#  ecs_service {
+#    cluster_name = var.ecs_cluster_name
+#    service_name = var.service_name
+#  }
+#
+#  load_balancer_info {
+#    target_group_pair_info {
+#      target_group {
+#        name = module.fargate_service.target_group_names["alb"]
+#      }
+#      target_group {
+#        name = module.fargate_service.target_group_names["green"]
+#      }
+#
+#      prod_traffic_route {
+#        listener_arns = [module.alb.http_listener_arns["80"]]
+#      }
+#    }
+#  }
+#  depends_on = [ 
+#    aws_codedeploy_app.ecs_app, 
+#    aws_iam_role.codedeploy_role,
+#    module.fargate_service
+#   ]
+#}
 
 resource "local_file" "appspec" {
   filename = "${path.module}/appspec.yaml"
@@ -562,21 +562,21 @@ EOT
   depends_on = [local_file.appspec]
 }
 
-resource "null_resource" "codedeploy_deployment" {
-  provisioner "local-exec" {
-    command = <<EOT
-aws deploy create-deployment \
-  --application-name "${aws_codedeploy_app.ecs_app.name}" \
-  --deployment-group-name "${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name}" \
-  --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${var.app_spec_bucket}\",\"key\":\"dev-app-spec/appspec.yaml\",\"bundleType\":\"YAML\"}}" \
-  --region "${var.aws_region}"
-EOT
-    interpreter = ["/bin/bash", "-c"]
-  }
-
-  triggers = {
-    always_run = timestamp()
-  }
-
-  depends_on = [null_resource.upload_appspec]
-}
+#resource "null_resource" "codedeploy_deployment" {
+#  provisioner "local-exec" {
+#    command = <<EOT
+#aws deploy create-deployment \
+#  --application-name "${aws_codedeploy_app.ecs_app.name}" \
+#  --deployment-group-name "${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name}" \
+#  --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${var.app_spec_bucket}\",\"key\":\"dev-app-spec/appspec.yaml\",\"bundleType\":\"YAML\"}}" \
+#  --region "${var.aws_region}"
+#EOT
+#    interpreter = ["/bin/bash", "-c"]
+#  }
+#
+#  triggers = {
+#    always_run = timestamp()
+#  }
+#
+#  depends_on = [null_resource.upload_appspec]
+#}
