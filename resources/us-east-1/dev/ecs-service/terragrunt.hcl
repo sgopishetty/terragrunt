@@ -59,21 +59,25 @@ inputs = {
 
   private_subnet_ids = dependency.subnets.outputs.public_subnets
   assign_public_ip   = true
-  enable_ecs_deployment_check = true
+  enable_ecs_deployment_check = false
 
   # Auto scaling
   use_auto_scaling        = true
   min_number_of_tasks     = "1"
-  max_number_of_tasks     = "2"
-  desired_number_of_tasks = "1"
+  max_number_of_tasks     = "3"
+  desired_number_of_tasks = "2"
 
   # ALB information
+  green_container_name  = "${local.service}"
   container_name        = "${local.service}"
-  container_port        = "80"
-  alb_protocol          = "HTTP"
-  health_check_protocol = "HTTP"
+  container_port        = "443"
+  alb_protocol          = "HTTPS"
+  health_check_protocol = "HTTPS"
   health_check_path     = "/"
-  vpc_id                = "vpc-06a51eb1b61b77c3f"
+  vpc_id                = "vpc-05702d6dd207b8cb4"
+
+  deployment_controller = "CODE_DEPLOY"
+  app_spec_bucket       = "epi-new-terra-tf-state"
 
   # ALB configuration
   alb_name            = "chapi-ecs-test"

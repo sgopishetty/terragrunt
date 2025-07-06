@@ -82,11 +82,21 @@ module "fargate_service" {
   # Configure ALB
   elb_target_groups = {
     alb = {
-      name                  = var.service_name
+      name                  = "${var.service_name}-blue"
       container_name        = var.container_name
       container_port        = var.container_port
       protocol              = var.alb_protocol
       health_check_protocol = var.health_check_protocol
+      health_check_port     = var.green_health_check_port
+      
+    }
+    green = {
+      name                  = "${var.service_name}-green"
+      container_name        = var.green_container_name
+      container_port        = var.green_container_port
+      protocol              = var.green_alb_protocol
+      health_check_protocol = var.green_health_check_protocol
+      health_check_port     = var.green_health_check_port     
     }
   }
   elb_target_group_vpc_id = var.vpc_id
@@ -158,6 +168,16 @@ resource "aws_security_group_rule" "allow_inbound_on_container_port" {
   source_security_group_id = module.alb.alb_security_group_id
 }
 
+resource "aws_security_group_rule" "allow_inbound_on_container_port_https" {
+  security_group_id = aws_security_group.ecs_task_security_group.id
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  #  cidr_blocks              = ["0.0.0.0/0"]
+  source_security_group_id = module.alb.alb_security_group_id
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE AN ALB TO ROUTE TRAFFIC ACROSS THE ECS TASKS
 # Typically, this would be created once for use with many different ECS Services.
@@ -210,7 +230,7 @@ resource "aws_alb_listener_rule" "path_https" {
 
   action {
     type             = "forward"
-    target_group_arn = module.fargate_service.target_group_arns["alb"]
+    target_group_arn = module.fargate_service.target_group_arns["green"]
   }
 
   condition {
@@ -241,13 +261,17 @@ resource "aws_alb_listener_rule" "path_based_example" {
 
   action {
     type             = "forward"
-    target_group_arn = module.fargate_service.target_group_arns["alb"]
+    target_group_arn = module.fargate_service.target_group_arns["green"]
   }
 
   condition {
     path_pattern {
       values = ["/*"]
     }
+  }
+
+  lifecycle {
+    ignore_changes = [action]
   }
 }
 
@@ -264,7 +288,7 @@ resource "aws_alb_listener_rule" "path_based_example" {
 
 #   action {
 #     type             = "forward"
-#     target_group_arn = module.fargate_service.target_group_arns["alb"]
+#     target_group_arn = module.fargate_service.target_group_arns["green"]
 #   }
 
 #   condition {
@@ -423,4 +447,136 @@ resource "aws_appautoscaling_policy" "scale_in" {
       scaling_adjustment          = -1
     }
   }
+}
+
+# CodeDeploy IAM Role
+resource "aws_iam_role" "codedeploy_role" {
+  name = "CodeDeployRoleBG"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "codedeploy.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+#
+resource "aws_iam_role_policy_attachment" "codedeploy_attach" {
+  role       = aws_iam_role.codedeploy_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS"
+}
+
+# CodeDeploy Application
+resource "aws_codedeploy_app" "ecs_app" {
+  name = "ecs-codedeploy-app"
+  compute_platform = "ECS"
+}
+#
+## CodeDeploy Deployment Group
+resource "aws_codedeploy_deployment_group" "ecs_dg" {
+  app_name              = aws_codedeploy_app.ecs_app.name
+  deployment_group_name = "ecs-bluegreen-dg"
+  service_role_arn      = aws_iam_role.codedeploy_role.arn
+  deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+
+  auto_rollback_configuration {
+    enabled = true
+    events  = ["DEPLOYMENT_FAILURE"]
+  }
+
+  blue_green_deployment_config {
+    terminate_blue_instances_on_deployment_success {
+      action                           = "TERMINATE"
+      termination_wait_time_in_minutes = 1
+    }
+
+    deployment_ready_option {
+      action_on_timeout = "CONTINUE_DEPLOYMENT"
+    }
+
+  }
+
+  deployment_style {
+    deployment_type = "BLUE_GREEN"
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+  }
+
+  ecs_service {
+    cluster_name = var.ecs_cluster_name
+    service_name = var.service_name
+  }
+
+  load_balancer_info {
+    target_group_pair_info {
+      target_group {
+        name = module.fargate_service.target_group_names["alb"]
+      }
+      target_group {
+        name = module.fargate_service.target_group_names["green"]
+      }
+
+      prod_traffic_route {
+        listener_arns = [module.alb.http_listener_arns["80"]]
+      }
+    }
+  }
+  depends_on = [ 
+    aws_codedeploy_app.ecs_app, 
+    aws_iam_role.codedeploy_role,
+    module.fargate_service
+   ]
+}
+
+resource "local_file" "appspec" {
+  filename = "${path.module}/appspec.yaml"
+  content  = <<EOT
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "${module.fargate_service.aws_ecs_task_definition_arn}"
+        LoadBalancerInfo:
+          ContainerName: "${var.container_name}"
+          ContainerPort: ${var.container_port}
+        PlatformVersion: LATEST
+EOT
+}
+
+resource "null_resource" "upload_appspec" {
+  provisioner "local-exec" {
+    command = <<EOT
+aws s3 cp "${path.module}/appspec.yaml" "s3://${var.app_spec_bucket}/dev-app-spec/appspec.yaml" --content-type "text/yaml"
+EOT
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  depends_on = [local_file.appspec]
+}
+
+resource "null_resource" "codedeploy_deployment" {
+  provisioner "local-exec" {
+    command = <<EOT
+aws deploy create-deployment \
+  --application-name "${aws_codedeploy_app.ecs_app.name}" \
+  --deployment-group-name "${aws_codedeploy_deployment_group.ecs_dg.deployment_group_name}" \
+  --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${var.app_spec_bucket}\",\"key\":\"dev-app-spec/appspec.yaml\",\"bundleType\":\"YAML\"}}" \
+  --region "${var.aws_region}"
+EOT
+    interpreter = ["/bin/bash", "-c"]
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  depends_on = [null_resource.upload_appspec]
 }

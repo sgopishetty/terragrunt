@@ -21,3 +21,17 @@ output "https_listener_non_acm_cert_arns" {
 output "https_listener_acm_cert_arns" {
   value = module.alb.https_listener_acm_cert_arns
 }
+
+output "appspec_yaml_content" {
+  value = <<-EOT
+    version: 1
+    Resources:
+      - TargetService:
+          Type: AWS::ECS::Service
+          Properties:
+            TaskDefinition: "${module.fargate_service.aws_ecs_task_definition_arn}"
+            LoadBalancerInfo:
+              ContainerName: "${var.container_name}"
+              ContainerPort: "${var.container_port}"
+  EOT
+}

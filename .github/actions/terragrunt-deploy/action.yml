@@ -1,4 +1,4 @@
-name: "Terragrunt Plan and Deploy"
+name: "Terragrunt Plan and Deploy "
 description: "Runs Terragrunt plan and apply commands."
 
 inputs:
@@ -17,7 +17,7 @@ inputs:
   aws_role_arn:
     description: "The AWS role to assume"
     required: false
-    default: "arn:aws:iam::010526272542:role/github-ci"
+    default: "arn:aws:iam::976193232529:role/github-ci"
   aws_role_duration_seconds:
     description: "The AWS role duration in seconds"
     required: false
@@ -50,6 +50,21 @@ inputs:
     description: "The commit ID to use as environment variable"
     required: false
     default: "latest"
+  code_deploy_app_name:
+    description: "Name of Code Deploy Application"
+    required: true
+    default: ecs-codedeploy-app
+  code_deploy_group_name:
+    description: "Name of Code Deploy Deployment Group"
+    required: true
+    default: ecs-bluegreen-dg
+  app_spec_bucket:
+    required: false
+    default: "epi-new-terra-tf-state"
+  appspec_s3_object_key:
+    required: true
+    default: ""
+  
 
 runs:
   using: "composite"
@@ -82,11 +97,11 @@ runs:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
-        tg_command: "run-all init"
+        tg_command: "run-all init -reconfigure"
 
     - name: Terragrunt Plan
       id: plan
-      uses: gruntwork-io/terragrunt-action@v2
+      uses: ./.github/actions/terragrunt-python
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
       with:
@@ -96,11 +111,21 @@ runs:
         tg_command: "run-all plan -out=tf.plan"
       
     - name: Terragrunt Apply
-      uses: gruntwork-io/terragrunt-action@v2
+      uses: ./.github/actions/terragrunt-python
       env:
         COMMIT_SHA: ${{ inputs.commit_id }}
       with:
         tf_version: ${{ inputs.tf_version }}
         tg_version: ${{ inputs.tg_version }}
         tg_dir: ${{ inputs.terragrunt_dir }}
-        tg_command: "run-all destroy"
+        tg_command: "run-all destroy" 
+    
+      
+    #- name: Create CodeDeploy Deployment
+    #  run: |
+    #    aws deploy create-deployment \
+    #      --application-name ${{ inputs.code_deploy_app_name }} \
+    #      --deployment-group-name ${{ inputs.code_deploy_group_name }} \
+    #      --revision "{\"revisionType\":\"S3\",\"s3Location\":{\"bucket\":\"${{ inputs.app_spec_bucket }}\",\"key\":\"${{ inputs.appspec_s3_object_key }}\",\"bundleType\":\"YAML\"}}" \
+    #      --region ${{ inputs.aws_region }}
+    #  shell: bash

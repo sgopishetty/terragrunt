@@ -34,7 +34,7 @@ resource "aws_lb_target_group" "ecs_service" {
   name = each.value.name
   # Note that the port 80 specified below is simply the default port for the Target Group. When a Docker container
   # launches, the actual port will be chosen dynamically, so the value specified below is arbitrary.
-  port             = 80
+  port             = lookup(each.value, "health_check_port", 80)
   protocol         = lookup(each.value, "protocol", "TCP")
   protocol_version = lookup(each.value, "protocol_version", null)
   # Note: For ALBs, null will translate to the default value "round_robin". NLBs do not have a
@@ -105,6 +105,11 @@ resource "aws_lb_target_group" "ecs_service" {
       type            = var.alb_sticky_session_type
       cookie_duration = var.alb_sticky_session_cookie_duration
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+    #ignore_changes = ["name"]
   }
 }
 
